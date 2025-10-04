@@ -1,0 +1,125 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    /* Base colors */
+    --background: 180 25% 97%;
+    --foreground: 220 15% 15%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 220 15% 15%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 15% 15%;
+
+    /* Primary - Teal/Turquoise for CTAs */
+    --primary: 174 72% 45%;
+    --primary-foreground: 0 0% 100%;
+    --primary-hover: 174 72% 35%;
+
+    /* Secondary - Light gray */
+    --secondary: 220 15% 95%;
+    --secondary-foreground: 220 15% 15%;
+
+    --muted: 220 15% 96%;
+    --muted-foreground: 220 10% 50%;
+
+    --accent: 174 50% 92%;
+    --accent-foreground: 174 72% 30%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 220 15% 90%;
+    --input: 220 15% 90%;
+    --ring: 174 72% 45%;
+
+    --radius: 0.75rem;
+
+    /* Exercise type colors */
+    --flashcard: 270 70% 62%;
+    --flashcard-light: 270 70% 95%;
+    --association: 330 70% 60%;
+    --association-light: 330 70% 95%;
+    --quiz: 38 92% 50%;
+    --quiz-light: 38 92% 95%;
+    --completion: 142 71% 45%;
+    --completion-light: 142 71% 95%;
+    --translation: 217 91% 60%;
+    --translation-light: 217 91% 95%;
+    --conversation: 245 58% 51%;
+    --conversation-light: 245 58% 95%;
+
+    /* Difficulty levels */
+    --level-1: 142 76% 36%;
+    --level-2: 84 81% 44%;
+    --level-3: 38 92% 50%;
+    --level-4: 25 95% 53%;
+    --level-5: 0 72% 51%;
+
+    /* Gradients */
+    --gradient-hero: linear-gradient(135deg, hsl(174 72% 45%) 0%, hsl(217 91% 60%) 100%);
+    --gradient-card: linear-gradient(135deg, hsl(0 0% 100%) 0%, hsl(180 25% 99%) 100%);
+    --gradient-subtle: linear-gradient(180deg, hsl(180 25% 98%) 0%, hsl(180 25% 96%) 100%);
+
+    /* Shadows */
+    --shadow-sm: 0 1px 2px 0 hsla(220, 15%, 15%, 0.05);
+    --shadow-md: 0 4px 12px -2px hsla(220, 15%, 15%, 0.08);
+    --shadow-lg: 0 12px 24px -4px hsla(220, 15%, 15%, 0.1);
+    --shadow-xl: 0 20px 32px -8px hsla(220, 15%, 15%, 0.12);
+
+    /* Transitions */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .dark {
+    --background: 220 20% 8%;
+    --foreground: 220 15% 95%;
+
+    --card: 220 20% 12%;
+    --card-foreground: 220 15% 95%;
+
+    --popover: 220 20% 12%;
+    --popover-foreground: 220 15% 95%;
+
+    --primary: 174 72% 55%;
+    --primary-foreground: 220 20% 8%;
+    --primary-hover: 174 72% 45%;
+
+    --secondary: 220 20% 18%;
+    --secondary-foreground: 220 15% 95%;
+
+    --muted: 220 20% 18%;
+    --muted-foreground: 220 10% 60%;
+
+    --accent: 174 50% 20%;
+    --accent-foreground: 174 72% 70%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 220 15% 95%;
+
+    --border: 220 20% 20%;
+    --input: 220 20% 20%;
+    --ring: 174 72% 55%;
+
+    --gradient-hero: linear-gradient(135deg, hsl(174 72% 35%) 0%, hsl(217 91% 40%) 100%);
+    --gradient-card: linear-gradient(135deg, hsl(220 20% 12%) 0%, hsl(220 20% 15%) 100%);
+    --gradient-subtle: linear-gradient(180deg, hsl(220 20% 10%) 0%, hsl(220 20% 8%) 100%);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}
