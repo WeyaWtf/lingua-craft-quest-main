@@ -1,12 +1,13 @@
 import { Link, useLocation } from "react-router-dom";
-import { Home, BookOpen, Gamepad2, PenTool, Users } from "lucide-react";
+import { Home, BookOpen, Gamepad2, PenTool, Users, Route } from "lucide-react";
 
 const Navigation = () => {
   const location = useLocation();
-  
+
   const navItems = [
     { path: "/", label: "Accueil", icon: Home },
     { path: "/catalog", label: "Catalogue", icon: BookOpen },
+    { path: "/learning-paths", label: "Parcours", icon: Route },
     { path: "/exercises", label: "Exercices", icon: Gamepad2 },
     { path: "/creator", label: "Créer", icon: PenTool },
     { path: "/community", label: "Communauté", icon: Users },

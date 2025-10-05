@@ -497,6 +497,34 @@ const Player = () => {
       setSelectedLeft(null);
     };
 
+    const handleRightContextMenu = (e: React.MouseEvent, rightId: string) => {
+      e.preventDefault(); // Empêcher le menu contextuel par défaut
+
+      // Trouver la paire associée à cet élément de droite
+      const leftPairId = Object.keys(matches).find(key => matches[key] === rightId);
+
+      if (leftPairId) {
+        // Supprimer l'association
+        const newMatches = { ...matches };
+        delete newMatches[leftPairId];
+        setMatches(newMatches);
+        toast.info("Association annulée");
+      }
+    };
+
+    const handleLeftContextMenu = (e: React.MouseEvent, pairId: string) => {
+      e.preventDefault(); // Empêcher le menu contextuel par défaut
+
+      // Vérifier si cet élément gauche est associé
+      if (matches[pairId]) {
+        // Supprimer l'association
+        const newMatches = { ...matches };
+        delete newMatches[pairId];
+        setMatches(newMatches);
+        toast.info("Association annulée");
+      }
+    };
+
     const isGroupComplete = currentGroup.length > 0 && currentGroup.every(pair => matches[pair.id]);
 
     const handleContinue = () => {
@@ -578,14 +606,16 @@ const Player = () => {
                   <button
                     key={pair.id}
                     onClick={() => handleLeftClick(pair.id)}
+                    onContextMenu={(e) => handleLeftContextMenu(e, pair.id)}
                     disabled={!!matches[pair.id]}
                     className={`w-full p-4 rounded-xl border-2 transition-all ${
                       matches[pair.id]
-                        ? "bg-gray-100 border-gray-400 opacity-50 cursor-not-allowed"
+                        ? "bg-gray-100 border-gray-400 opacity-50 cursor-context-menu"
                         : selectedLeft === pair.id
                         ? "bg-blue-100 border-blue-500 shadow-lg scale-105"
                         : "bg-white border-gray-300 hover:border-blue-400 hover:shadow-md"
                     }`}
+                    title={matches[pair.id] ? "Clic droit pour annuler l'association" : ""}
                   >
                     {(() => {
                       // Format: "日本語|romanji" - afficher kanji + romanji
@@ -613,14 +643,16 @@ const Player = () => {
                     <button
                       key={item.id}
                       onClick={() => handleRightClick(item.id, item.value)}
+                      onContextMenu={(e) => handleRightContextMenu(e, item.id)}
                       disabled={isMatched || !selectedLeft}
                       className={`w-full p-4 rounded-xl border-2 transition-all ${
                         isMatched
-                          ? "bg-gray-100 border-gray-400 opacity-50 cursor-not-allowed"
+                          ? "bg-gray-100 border-gray-400 opacity-50 cursor-context-menu"
                           : !selectedLeft
                           ? "bg-gray-50 border-gray-200 cursor-not-allowed opacity-50"
                           : "bg-white border-gray-300 hover:border-blue-400 hover:shadow-md"
                       }`}
+                      title={isMatched ? "Clic droit pour annuler l'association" : ""}
                     >
                       <span className="text-lg font-semibold">{item.value}</span>
                     </button>
