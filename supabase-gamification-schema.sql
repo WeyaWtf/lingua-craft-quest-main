@@ -63,7 +63,7 @@ CREATE TABLE IF NOT EXISTS exercise_attempts (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   exercise_id UUID NOT NULL REFERENCES exercises(id) ON DELETE CASCADE,
-  learning_path_id UUID REFERENCES learning_paths(id) ON DELETE SET NULL,
+  learning_path_id UUID,  -- Optional: will add FK constraint when learning_paths table exists
 
   -- Performance
   score DECIMAL(5,2) NOT NULL CHECK (score >= 0 AND score <= 100),
@@ -103,7 +103,7 @@ CREATE TABLE IF NOT EXISTS review_schedule (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   exercise_id UUID NOT NULL REFERENCES exercises(id) ON DELETE CASCADE,
-  learning_path_id UUID REFERENCES learning_paths(id) ON DELETE SET NULL,
+  learning_path_id UUID,  -- Optional: will add FK constraint when learning_paths table exists
 
   -- Historique
   first_attempt_date TIMESTAMPTZ NOT NULL,
@@ -195,11 +195,14 @@ CREATE TRIGGER daily_assignments_updated_at
 -- ============================================================================
 -- 5. LEARNING PATH PROGRESS (Progression dans les learning paths)
 -- ============================================================================
+-- NOTE: This table is disabled until learning_paths table is created
+-- Uncomment when learning_paths table exists
 
+/*
 CREATE TABLE IF NOT EXISTS learning_path_progress (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-  learning_path_id UUID NOT NULL REFERENCES learning_paths(id) ON DELETE CASCADE,
+  learning_path_id UUID NOT NULL,  -- Will add FK constraint when learning_paths exists
 
   -- Progression
   current_chapter_id UUID,
@@ -234,6 +237,7 @@ CREATE INDEX IF NOT EXISTS idx_learning_path_progress_user_id ON learning_path_p
 CREATE INDEX IF NOT EXISTS idx_learning_path_progress_path_id ON learning_path_progress(learning_path_id);
 CREATE INDEX IF NOT EXISTS idx_learning_path_progress_user_path ON learning_path_progress(user_id, learning_path_id);
 CREATE INDEX IF NOT EXISTS idx_learning_path_progress_completion ON learning_path_progress(completion_percentage);
+*/
 
 -- ============================================================================
 -- 6. SHOP ITEMS (Articles de la boutique)
@@ -392,7 +396,7 @@ CREATE INDEX IF NOT EXISTS idx_user_achievements_unlocked ON user_achievements(u
 
 CREATE TABLE IF NOT EXISTS spaced_repetition_config (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  learning_path_id UUID REFERENCES learning_paths(id) ON DELETE CASCADE,
+  learning_path_id UUID,  -- Optional: will add FK constraint when learning_paths exists
 
   -- Configuration globale si learning_path_id est NULL
   is_default BOOLEAN NOT NULL DEFAULT false,
@@ -493,7 +497,7 @@ ALTER TABLE user_progress ENABLE ROW LEVEL SECURITY;
 ALTER TABLE exercise_attempts ENABLE ROW LEVEL SECURITY;
 ALTER TABLE review_schedule ENABLE ROW LEVEL SECURITY;
 ALTER TABLE daily_assignments ENABLE ROW LEVEL SECURITY;
-ALTER TABLE learning_path_progress ENABLE ROW LEVEL SECURITY;
+-- ALTER TABLE learning_path_progress ENABLE ROW LEVEL SECURITY;  -- Disabled until table exists
 ALTER TABLE shop_items ENABLE ROW LEVEL SECURITY;
 ALTER TABLE user_inventory ENABLE ROW LEVEL SECURITY;
 ALTER TABLE active_powerups ENABLE ROW LEVEL SECURITY;
@@ -541,7 +545,8 @@ CREATE POLICY "Users can manage own assignments"
   ON daily_assignments FOR ALL
   USING (auth.uid() = user_id);
 
--- Policies pour learning_path_progress
+-- Policies pour learning_path_progress (disabled until table is created)
+/*
 CREATE POLICY "Users can view own path progress"
   ON learning_path_progress FOR SELECT
   USING (auth.uid() = user_id);
@@ -549,6 +554,7 @@ CREATE POLICY "Users can view own path progress"
 CREATE POLICY "Users can manage own path progress"
   ON learning_path_progress FOR ALL
   USING (auth.uid() = user_id);
+*/
 
 -- Policies pour shop_items (lecture publique)
 CREATE POLICY "Anyone can view available shop items"
@@ -657,7 +663,7 @@ COMMENT ON TABLE user_progress IS 'Progression globale de l''utilisateur (XP, ni
 COMMENT ON TABLE exercise_attempts IS 'Historique de toutes les tentatives d''exercices';
 COMMENT ON TABLE review_schedule IS 'Planning de révisions basé sur répétition espacée';
 COMMENT ON TABLE daily_assignments IS 'Devoirs quotidiens générés automatiquement';
-COMMENT ON TABLE learning_path_progress IS 'Progression dans chaque learning path';
+-- COMMENT ON TABLE learning_path_progress IS 'Progression dans chaque learning path';  -- Disabled until table exists
 COMMENT ON TABLE shop_items IS 'Catalogue d''articles achetables';
 COMMENT ON TABLE user_inventory IS 'Inventaire des articles possédés par utilisateur';
 COMMENT ON TABLE active_powerups IS 'Power-ups actuellement actifs';

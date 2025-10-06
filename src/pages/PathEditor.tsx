@@ -1,6 +1,6 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Save, Plus, Trash2, FolderPlus, ChevronRight, ChevronDown, Gamepad2, FolderTree, Folder, FolderOpen, ArrowUp, ArrowDown, Edit } from "lucide-react";
+import { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { ArrowLeft, Save, Plus, Trash2, FolderPlus, ChevronRight, ChevronDown, Gamepad2, FolderTree, Folder, FolderOpen, ArrowUp, ArrowDown, Trophy, Calendar, Edit } from "lucide-react";
 import Navigation from "@/components/Navigation";
 import { useLearningPaths } from "@/contexts/LearningPathContext";
 import { useExercises } from "@/contexts/ExerciseContext";
@@ -10,23 +10,33 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { toast } from "sonner";
 
-type PathItem =
-  | { type: 'chapter'; id: string; title: string; items: PathItem[] }
-  | { type: 'subchapter'; id: string; title: string; items: PathItem[] }
-  | { type: 'exercise'; id: string }
-  | { type: 'topic'; id: string };
+type AssignmentConfig = {
+  enabled: boolean;
+  frequency: 'daily' | 'every_2_days' | 'every_3_days' | 'weekly';
+  requiredAccuracy: number; // 0-100
+  repetitionsRequired: number;
+};
 
-const PathCreator = () => {
+type PathItem =
+  | { type: 'chapter'; id: string; title: string; xpReward?: number; items: PathItem[] }
+  | { type: 'subchapter'; id: string; title: string; xpReward?: number; items: PathItem[] }
+  | { type: 'exercise'; id: string; xpReward?: number; assignmentConfig?: AssignmentConfig }
+  | { type: 'topic'; id: string; xpReward?: number; assignmentConfig?: AssignmentConfig };
+
+const PathEditor = () => {
+  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { addLearningPath } = useLearningPaths();
+  const { getLearningPath, updateLearningPath } = useLearningPaths();
   const { exercises } = useExercises();
   const { topics } = useTopics();
+
+  const path = getLearningPath(id || "");
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -47,11 +57,42 @@ const PathCreator = () => {
   const [draggedItem, setDraggedItem] = useState<PathItem | null>(null);
   const [draggedFromStructure, setDraggedFromStructure] = useState<boolean>(false);
   const [dropTarget, setDropTarget] = useState<string | null>(null);
+  const [dropPosition, setDropPosition] = useState<'before' | 'after' | 'inside'>('inside');
+
+  // XP and Assignment config dialog
+  const [configDialogOpen, setConfigDialogOpen] = useState(false);
+  const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
 
   // Rename dialog for chapters/subchapters
   const [renameDialogOpen, setRenameDialogOpen] = useState(false);
   const [renameItemId, setRenameItemId] = useState<string | null>(null);
   const [renameValue, setRenameValue] = useState("");
+
+  useEffect(() => {
+    if (path) {
+      setTitle(path.title);
+      setDescription(path.description);
+      setLanguage(path.language);
+      setDifficulty(path.difficulty.toString());
+      setEstimatedTime(path.estimatedTime);
+      setIcon(path.icon);
+      setColor(path.color);
+      setPathItems(path.structure || []);
+
+      // Expand all by default
+      const allIds = new Set<string>();
+      const collectIds = (items: PathItem[]) => {
+        items.forEach(item => {
+          if (item.type === 'chapter' || item.type === 'subchapter') {
+            allIds.add(item.id);
+            if (item.items) collectIds(item.items);
+          }
+        });
+      };
+      collectIds(path.structure || []);
+      setExpandedChapters(allIds);
+    }
+  }, [path]);
 
   // Get all exercise and topic IDs that are already used
   const getUsedIds = (items: PathItem[]): Set<string> => {
@@ -72,27 +113,16 @@ const PathCreator = () => {
 
   const usedIds = getUsedIds(pathItems);
 
-  // Language mapping for compatibility (birman = burmese, etc.)
+  // Language matching
   const languageMatches = (exLang: string, selectedLang: string): boolean => {
     const normalize = (lang: string) => lang.toLowerCase();
     const ex = normalize(exLang);
     const sel = normalize(selectedLang);
-
-    // Direct match
     if (ex === sel) return true;
-
-    // Burmese/Birman equivalence
     if ((ex === 'burmese' || ex === 'birman') && (sel === 'burmese' || sel === 'birman')) return true;
-
-    // Japanese/Japonais equivalence
     if ((ex === 'japanese' || ex === 'japonais') && (sel === 'japanese' || sel === 'japonais')) return true;
-
-    // Korean/Coréen equivalence
     if ((ex === 'korean' || ex === 'coréen') && (sel === 'korean' || sel === 'coréen')) return true;
-
-    // Thai/Thaï equivalence
     if ((ex === 'thai' || ex === 'thaï') && (sel === 'thai' || sel === 'thaï')) return true;
-
     return false;
   };
 
@@ -104,7 +134,7 @@ const PathCreator = () => {
     !usedIds.has(t.id) && languageMatches(t.language, language)
   );
 
-  // Get all chapters and subchapters for parent selection
+  // Get all containers
   const getAllContainers = (items: PathItem[], depth = 0): Array<{ id: string; title: string; depth: number; type: string }> => {
     const containers: Array<{ id: string; title: string; depth: number; type: string }> = [];
     items.forEach(item => {
@@ -140,6 +170,7 @@ const PathCreator = () => {
       type: 'chapter',
       id: `chapter-${Date.now()}`,
       title: newChapterTitle,
+      xpReward: 50,
       items: []
     };
 
@@ -159,10 +190,10 @@ const PathCreator = () => {
       type: 'subchapter',
       id: `subchapter-${Date.now()}`,
       title: newSubchapterTitle,
+      xpReward: 25,
       items: []
     };
 
-    // Add subchapter to the selected parent
     const addToParent = (items: PathItem[]): PathItem[] => {
       return items.map(item => {
         if ((item.type === 'chapter' || item.type === 'subchapter') && item.id === selectedParentId) {
@@ -216,27 +247,37 @@ const PathCreator = () => {
     toast.success("Élément supprimé");
   };
 
-  // Drag and drop handlers
+  // Drag and drop
   const handleDragStart = (item: PathItem, fromStructure: boolean = false) => {
     setDraggedItem(item);
     setDraggedFromStructure(fromStructure);
   };
 
-  const handleDragOver = (e: React.DragEvent, targetId: string) => {
+  const handleDragOver = (e: React.DragEvent, targetId: string, position: 'before' | 'after' | 'inside' = 'inside') => {
     e.preventDefault();
+    e.stopPropagation();
     setDropTarget(targetId);
+    setDropPosition(position);
   };
 
-  const handleDragLeave = () => {
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.stopPropagation();
     setDropTarget(null);
   };
 
-  const handleDrop = (e: React.DragEvent, targetId: string | 'root') => {
+  const handleDrop = (e: React.DragEvent, targetId: string | 'root', position: 'before' | 'after' | 'inside' = 'inside') => {
     e.preventDefault();
     e.stopPropagation();
     setDropTarget(null);
 
     if (!draggedItem) return;
+
+    // Prevent dropping item on itself
+    if (draggedItem.id === targetId) {
+      setDraggedItem(null);
+      setDraggedFromStructure(false);
+      return;
+    }
 
     // Check if item already exists in structure (only for exercises/topics from available list)
     if (!draggedFromStructure && (draggedItem.type === 'exercise' || draggedItem.type === 'topic')) {
@@ -264,10 +305,41 @@ const PathCreator = () => {
 
         const itemsWithoutDragged = removeFromItems(currentItems);
 
-        // Then, add it to the new location
+        // Then, add it to the new location based on position
         if (targetId === 'root') {
           return [...itemsWithoutDragged, draggedItem];
+        } else if (position === 'before' || position === 'after') {
+          // Insert before or after a specific item
+          const insertNearItem = (items: PathItem[]): { found: boolean; items: PathItem[] } => {
+            const targetIndex = items.findIndex(item => item.id === targetId);
+
+            if (targetIndex !== -1) {
+              const newItems = [...items];
+              const insertIndex = position === 'before' ? targetIndex : targetIndex + 1;
+              newItems.splice(insertIndex, 0, draggedItem);
+              return { found: true, items: newItems };
+            }
+
+            // Search in nested containers
+            for (let i = 0; i < items.length; i++) {
+              const item = items[i];
+              if ((item.type === 'chapter' || item.type === 'subchapter') && item.items) {
+                const result = insertNearItem(item.items);
+                if (result.found) {
+                  const newItems = [...items];
+                  newItems[i] = { ...item, items: result.items };
+                  return { found: true, items: newItems };
+                }
+              }
+            }
+
+            return { found: false, items };
+          };
+
+          const result = insertNearItem(itemsWithoutDragged);
+          return result.items;
         } else {
+          // Insert inside a container (default behavior)
           const addToContainer = (items: PathItem[]): PathItem[] => {
             return items.map(parent => {
               if ((parent.type === 'chapter' || parent.type === 'subchapter') && parent.id === targetId) {
@@ -284,7 +356,7 @@ const PathCreator = () => {
       });
 
       // Ensure target is expanded
-      if (targetId !== 'root') {
+      if (targetId !== 'root' && position === 'inside') {
         setExpandedChapters(new Set([...expandedChapters, targetId]));
       }
     } else {
@@ -301,20 +373,56 @@ const PathCreator = () => {
     toast.success(draggedFromStructure ? "Élément déplacé" : "Élément ajouté");
   };
 
-  // Rename chapter/subchapter
-  const openRenameDialog = (itemId: string) => {
-    const findItem = (items: PathItem[]): PathItem | null => {
-      for (const item of items) {
-        if (item.id === itemId) return item;
-        if ((item.type === 'chapter' || item.type === 'subchapter') && item.items) {
-          const found = findItem(item.items);
-          if (found) return found;
-        }
+  // Reorder
+  const handleMoveItemUp = (itemId: string) => {
+    const moveUpInArray = (items: PathItem[]): PathItem[] => {
+      const index = items.findIndex(item => item.id === itemId);
+      if (index > 0) {
+        const newItems = [...items];
+        [newItems[index - 1], newItems[index]] = [newItems[index], newItems[index - 1]];
+        return newItems;
       }
-      return null;
+
+      return items.map(item => {
+        if ((item.type === 'chapter' || item.type === 'subchapter') && item.items) {
+          return { ...item, items: moveUpInArray(item.items) };
+        }
+        return item;
+      });
     };
 
-    const item = findItem(pathItems);
+    setPathItems(moveUpInArray(pathItems));
+  };
+
+  const handleMoveItemDown = (itemId: string) => {
+    const moveDownInArray = (items: PathItem[]): PathItem[] => {
+      const index = items.findIndex(item => item.id === itemId);
+      if (index >= 0 && index < items.length - 1) {
+        const newItems = [...items];
+        [newItems[index], newItems[index + 1]] = [newItems[index + 1], newItems[index]];
+        return newItems;
+      }
+
+      return items.map(item => {
+        if ((item.type === 'chapter' || item.type === 'subchapter') && item.items) {
+          return { ...item, items: moveDownInArray(item.items) };
+        }
+        return item;
+      });
+    };
+
+    setPathItems(moveDownInArray(pathItems));
+  };
+
+  // Configure XP and Assignments for an item
+  const openConfigDialog = (itemId: string) => {
+    setSelectedItemId(itemId);
+    setConfigDialogOpen(true);
+  };
+
+  // Rename chapter/subchapter
+  const openRenameDialog = (itemId: string) => {
+    const item = findItemById(pathItems, itemId);
     if (item && (item.type === 'chapter' || item.type === 'subchapter')) {
       setRenameItemId(itemId);
       setRenameValue(item.title);
@@ -347,56 +455,43 @@ const PathCreator = () => {
     toast.success("Renommé avec succès");
   };
 
-  // Reorder items within their container
-  const handleMoveItemUp = (itemId: string, parentPath: string[] = []) => {
-    const moveUpInArray = (items: PathItem[]): PathItem[] => {
-      const index = items.findIndex(item => item.id === itemId);
-      if (index > 0) {
-        const newItems = [...items];
-        [newItems[index - 1], newItems[index]] = [newItems[index], newItems[index - 1]];
-        return newItems;
+  const findItemById = (items: PathItem[], id: string): PathItem | null => {
+    for (const item of items) {
+      if (item.id === id) return item;
+      if ((item.type === 'chapter' || item.type === 'subchapter') && item.items) {
+        const found = findItemById(item.items, id);
+        if (found) return found;
       }
-
-      // Search in nested containers
-      return items.map(item => {
-        if ((item.type === 'chapter' || item.type === 'subchapter') && item.items) {
-          return { ...item, items: moveUpInArray(item.items) };
-        }
-        return item;
-      });
-    };
-
-    setPathItems(moveUpInArray(pathItems));
+    }
+    return null;
   };
 
-  const handleMoveItemDown = (itemId: string, parentPath: string[] = []) => {
-    const moveDownInArray = (items: PathItem[]): PathItem[] => {
-      const index = items.findIndex(item => item.id === itemId);
-      if (index >= 0 && index < items.length - 1) {
-        const newItems = [...items];
-        [newItems[index], newItems[index + 1]] = [newItems[index + 1], newItems[index]];
-        return newItems;
-      }
-
-      // Search in nested containers
+  const updateItemConfig = (itemId: string, updates: Partial<PathItem>) => {
+    const updateInArray = (items: PathItem[]): PathItem[] => {
       return items.map(item => {
+        if (item.id === itemId) {
+          return { ...item, ...updates };
+        }
         if ((item.type === 'chapter' || item.type === 'subchapter') && item.items) {
-          return { ...item, items: moveDownInArray(item.items) };
+          return { ...item, items: updateInArray(item.items) };
         }
         return item;
       });
     };
 
-    setPathItems(moveDownInArray(pathItems));
+    setPathItems(updateInArray(pathItems));
+    toast.success("Configuration mise à jour");
   };
 
   const handleSave = () => {
+    if (!id || !path) return;
+
     if (!title || !description || pathItems.length === 0) {
       toast.error("Veuillez remplir tous les champs et ajouter au moins un élément");
       return;
     }
 
-    // Extract all exercise IDs recursively
+    // Extract all exercise IDs
     const extractExerciseIds = (items: PathItem[]): string[] => {
       const ids: string[] = [];
       items.forEach(item => {
@@ -412,21 +507,21 @@ const PathCreator = () => {
 
     const exerciseIds = extractExerciseIds(pathItems);
 
-    const newPath = addLearningPath({
+    updateLearningPath(id, {
+      ...path,
       title,
       description,
       language,
       difficulty: parseInt(difficulty) as 1 | 2 | 3 | 4 | 5,
       estimatedTime,
-      exerciseIds,
       icon,
       color,
-      authorId: "current-user",
-      isPublished: false
+      structure: pathItems,
+      exerciseIds
     });
 
-    toast.success("Parcours créé avec succès !");
-    navigate("/learning-paths");
+    toast.success("Parcours mis à jour avec succès!");
+    navigate("/creator/path-list");
   };
 
   const colorOptions = [
@@ -446,7 +541,6 @@ const PathCreator = () => {
       const isLast = index === items.length - 1;
 
       if (item.type === 'chapter' || item.type === 'subchapter') {
-        const hasItems = item.items && item.items.length > 0;
         const Icon = isExpanded ? FolderOpen : Folder;
         const ChevronIcon = isExpanded ? ChevronDown : ChevronRight;
         const isDropTarget = dropTarget === item.id;
@@ -475,9 +569,17 @@ const PathCreator = () => {
               <Icon className="w-5 h-5 text-amber-700" />
               <div className="flex-1">
                 <p className="font-bold text-sm text-amber-900">{item.title}</p>
-                <Badge variant="outline" className="text-xs bg-amber-200 text-amber-800 border-amber-400">
-                  {item.type === 'chapter' ? 'Chapitre' : 'Sous-chapitre'} ({item.items?.length || 0} éléments)
-                </Badge>
+                <div className="flex gap-2 items-center">
+                  <Badge variant="outline" className="text-xs bg-amber-200 text-amber-800 border-amber-400">
+                    {item.type === 'chapter' ? 'Chapitre' : 'Sous-chapitre'} ({item.items?.length || 0} éléments)
+                  </Badge>
+                  {item.xpReward && (
+                    <Badge variant="secondary" className="text-xs bg-yellow-200 text-yellow-800">
+                      <Trophy className="w-3 h-3 mr-1" />
+                      {item.xpReward} XP
+                    </Badge>
+                  )}
+                </div>
               </div>
               <Button
                 variant="outline"
@@ -491,9 +593,23 @@ const PathCreator = () => {
                 <Edit className="w-4 h-4" />
               </Button>
               <Button
+                variant="outline"
+                size="sm"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  openConfigDialog(item.id);
+                }}
+                title="Configurer XP"
+              >
+                <Trophy className="w-4 h-4" />
+              </Button>
+              <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => handleRemoveItem(item.id)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleRemoveItem(item.id);
+                }}
               >
                 <Trash2 className="w-4 h-4 text-red-500" />
               </Button>
@@ -525,22 +641,68 @@ const PathCreator = () => {
 
       if (item.type === 'exercise') {
         const exercise = exercises.find(ex => ex.id === item.id);
+        const hasAssignment = item.assignmentConfig?.enabled;
+
+        const isDropBefore = dropTarget === item.id && dropPosition === 'before';
+        const isDropAfter = dropTarget === item.id && dropPosition === 'after';
+
         return (
-          <div
-            key={item.id}
-            draggable
-            onDragStart={(e) => {
-              e.stopPropagation();
-              handleDragStart(item, true);
-            }}
-            className="flex items-center gap-2 bg-blue-50 border border-blue-200 rounded-lg p-3 mb-2 cursor-move hover:bg-blue-100 hover:border-blue-400 transition-colors"
-            style={{ marginLeft: `${indent}px` }}
-          >
+          <div key={item.id} style={{ marginLeft: `${indent}px` }}>
+            {isDropBefore && (
+              <div className="h-1 bg-blue-500 rounded mb-1 animate-pulse"></div>
+            )}
+            <div
+              draggable
+              onDragStart={(e) => {
+                e.stopPropagation();
+                handleDragStart(item, true);
+              }}
+              onDragOver={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                const rect = e.currentTarget.getBoundingClientRect();
+                const midpoint = rect.top + rect.height / 2;
+                const position = e.clientY < midpoint ? 'before' : 'after';
+                handleDragOver(e, item.id, position);
+              }}
+              onDragLeave={handleDragLeave}
+              onDrop={(e) => handleDrop(e, item.id, dropPosition)}
+              className={`flex items-center gap-2 bg-blue-50 border rounded-lg p-3 mb-2 cursor-move transition-colors ${
+                isDropBefore || isDropAfter
+                  ? 'border-blue-500 shadow-lg'
+                  : 'border-blue-200 hover:bg-blue-100 hover:border-blue-400'
+              }`}
+            >
             <Gamepad2 className="w-5 h-5 text-blue-600" />
             <div className="flex-1">
               <p className="font-semibold text-sm">🎯 {exercise?.title || "Exercice"}</p>
-              <Badge variant="outline" className="text-xs">{exercise?.type}</Badge>
+              <div className="flex gap-2 items-center">
+                <Badge variant="outline" className="text-xs">{exercise?.type}</Badge>
+                {item.xpReward && (
+                  <Badge variant="secondary" className="text-xs bg-yellow-200 text-yellow-800">
+                    <Trophy className="w-3 h-3 mr-1" />
+                    {item.xpReward} XP
+                  </Badge>
+                )}
+                {hasAssignment && (
+                  <Badge variant="secondary" className="text-xs bg-green-200 text-green-800">
+                    <Calendar className="w-3 h-3 mr-1" />
+                    Devoir
+                  </Badge>
+                )}
+              </div>
             </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={(e) => {
+                e.stopPropagation();
+                openConfigDialog(item.id);
+              }}
+              title="Configurer XP et devoirs"
+            >
+              <Trophy className="w-4 h-4" />
+            </Button>
             <Button
               variant="ghost"
               size="sm"
@@ -575,28 +737,78 @@ const PathCreator = () => {
             >
               <Trash2 className="w-4 h-4 text-red-500" />
             </Button>
+            </div>
+            {isDropAfter && (
+              <div className="h-1 bg-blue-500 rounded mt-1 mb-1 animate-pulse"></div>
+            )}
           </div>
         );
       }
 
       if (item.type === 'topic') {
         const topic = topics.find(t => t.id === item.id);
+        const hasAssignment = item.assignmentConfig?.enabled;
+
+        const isDropBefore = dropTarget === item.id && dropPosition === 'before';
+        const isDropAfter = dropTarget === item.id && dropPosition === 'after';
+
         return (
-          <div
-            key={item.id}
-            draggable
-            onDragStart={(e) => {
-              e.stopPropagation();
-              handleDragStart(item, true);
-            }}
-            className="flex items-center gap-2 bg-green-50 border border-green-200 rounded-lg p-3 mb-2 cursor-move hover:bg-green-100 hover:border-green-400 transition-colors"
-            style={{ marginLeft: `${indent}px` }}
-          >
+          <div key={item.id} style={{ marginLeft: `${indent}px` }}>
+            {isDropBefore && (
+              <div className="h-1 bg-green-500 rounded mb-1 animate-pulse"></div>
+            )}
+            <div
+              draggable
+              onDragStart={(e) => {
+                e.stopPropagation();
+                handleDragStart(item, true);
+              }}
+              onDragOver={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                const rect = e.currentTarget.getBoundingClientRect();
+                const midpoint = rect.top + rect.height / 2;
+                const position = e.clientY < midpoint ? 'before' : 'after';
+                handleDragOver(e, item.id, position);
+              }}
+              onDragLeave={handleDragLeave}
+              onDrop={(e) => handleDrop(e, item.id, dropPosition)}
+              className={`flex items-center gap-2 bg-green-50 border rounded-lg p-3 mb-2 cursor-move transition-colors ${
+                isDropBefore || isDropAfter
+                  ? 'border-green-500 shadow-lg'
+                  : 'border-green-200 hover:bg-green-100 hover:border-green-400'
+              }`}
+            >
             <FolderTree className="w-5 h-5 text-green-600" />
             <div className="flex-1">
               <p className="font-semibold text-sm">{topic?.icon} {topic?.title || "Topic"}</p>
-              <Badge variant="outline" className="text-xs">Topic</Badge>
+              <div className="flex gap-2 items-center">
+                <Badge variant="outline" className="text-xs">Topic</Badge>
+                {item.xpReward && (
+                  <Badge variant="secondary" className="text-xs bg-yellow-200 text-yellow-800">
+                    <Trophy className="w-3 h-3 mr-1" />
+                    {item.xpReward} XP
+                  </Badge>
+                )}
+                {hasAssignment && (
+                  <Badge variant="secondary" className="text-xs bg-green-200 text-green-800">
+                    <Calendar className="w-3 h-3 mr-1" />
+                    Devoir
+                  </Badge>
+                )}
+              </div>
             </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={(e) => {
+                e.stopPropagation();
+                openConfigDialog(item.id);
+              }}
+              title="Configurer XP et devoirs"
+            >
+              <Trophy className="w-4 h-4" />
+            </Button>
             <Button
               variant="ghost"
               size="sm"
@@ -631,6 +843,10 @@ const PathCreator = () => {
             >
               <Trash2 className="w-4 h-4 text-red-500" />
             </Button>
+            </div>
+            {isDropAfter && (
+              <div className="h-1 bg-green-500 rounded mt-1 mb-1 animate-pulse"></div>
+            )}
           </div>
         );
       }
@@ -639,6 +855,24 @@ const PathCreator = () => {
     });
   };
 
+  if (!path) {
+    return (
+      <div className="min-h-screen bg-gradient-subtle">
+        <Navigation />
+        <div className="container mx-auto px-4 py-16 text-center">
+          <div className="text-6xl mb-4">😕</div>
+          <h2 className="text-2xl font-bold text-foreground mb-2">Parcours introuvable</h2>
+          <p className="text-muted-foreground mb-6">Ce parcours n'existe pas.</p>
+          <Button onClick={() => navigate("/creator/path-list")}>
+            Retour à la liste
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  const selectedItem = selectedItemId ? findItemById(pathItems, selectedItemId) : null;
+
   return (
     <div className="min-h-screen bg-gradient-subtle">
       <Navigation />
@@ -646,11 +880,11 @@ const PathCreator = () => {
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
-          <Button variant="outline" onClick={() => navigate("/creator")}>
+          <Button variant="outline" onClick={() => navigate("/creator/path-list")}>
             <ArrowLeft className="w-4 h-4 mr-2" />
             Retour
           </Button>
-          <h1 className="text-3xl font-bold text-foreground">Créer un Parcours</h1>
+          <h1 className="text-3xl font-bold text-foreground">Édition du Parcours</h1>
           <Button onClick={handleSave} size="lg">
             <Save className="w-4 h-4 mr-2" />
             Enregistrer
@@ -877,7 +1111,7 @@ const PathCreator = () => {
                           <div
                             key={exercise.id}
                             draggable
-                            onDragStart={() => handleDragStart({ type: 'exercise', id: exercise.id })}
+                            onDragStart={() => handleDragStart({ type: 'exercise', id: exercise.id, xpReward: 10 })}
                             className="flex items-center justify-between bg-white border rounded-lg p-2 cursor-move hover:bg-blue-50 hover:border-blue-300 transition-colors"
                           >
                             <div className="flex-1">
@@ -890,7 +1124,7 @@ const PathCreator = () => {
                                   key={container.id}
                                   variant="ghost"
                                   size="sm"
-                                  onClick={() => handleAddItemToContainer({ type: 'exercise', id: exercise.id }, container.id)}
+                                  onClick={() => handleAddItemToContainer({ type: 'exercise', id: exercise.id, xpReward: 10 }, container.id)}
                                   title={`→ ${container.title}`}
                                   className="h-7 px-2 text-xs"
                                 >
@@ -900,7 +1134,7 @@ const PathCreator = () => {
                               <Button
                                 variant="outline"
                                 size="sm"
-                                onClick={() => handleAddItemToRoot({ type: 'exercise', id: exercise.id })}
+                                onClick={() => handleAddItemToRoot({ type: 'exercise', id: exercise.id, xpReward: 10 })}
                                 title="Ajouter à la racine"
                                 className="h-7"
                               >
@@ -927,7 +1161,7 @@ const PathCreator = () => {
                           <div
                             key={topic.id}
                             draggable
-                            onDragStart={() => handleDragStart({ type: 'topic', id: topic.id })}
+                            onDragStart={() => handleDragStart({ type: 'topic', id: topic.id, xpReward: 5 })}
                             className="flex items-center justify-between bg-white border rounded-lg p-2 cursor-move hover:bg-green-50 hover:border-green-300 transition-colors"
                           >
                             <div className="flex-1">
@@ -940,7 +1174,7 @@ const PathCreator = () => {
                                   key={container.id}
                                   variant="ghost"
                                   size="sm"
-                                  onClick={() => handleAddItemToContainer({ type: 'topic', id: topic.id }, container.id)}
+                                  onClick={() => handleAddItemToContainer({ type: 'topic', id: topic.id, xpReward: 5 }, container.id)}
                                   title={`→ ${container.title}`}
                                   className="h-7 px-2 text-xs"
                                 >
@@ -950,7 +1184,7 @@ const PathCreator = () => {
                               <Button
                                 variant="outline"
                                 size="sm"
-                                onClick={() => handleAddItemToRoot({ type: 'topic', id: topic.id })}
+                                onClick={() => handleAddItemToRoot({ type: 'topic', id: topic.id, xpReward: 5 })}
                                 title="Ajouter à la racine"
                                 className="h-7"
                               >
@@ -971,6 +1205,146 @@ const PathCreator = () => {
           </div>
         </div>
       </div>
+
+      {/* XP and Assignment Config Dialog */}
+      <Dialog open={configDialogOpen} onOpenChange={setConfigDialogOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Configuration - {selectedItem?.type === 'chapter' ? selectedItem.title : selectedItem?.type === 'subchapter' ? selectedItem.title : (selectedItem?.type === 'exercise' ? exercises.find(e => e.id === selectedItem.id)?.title : topics.find(t => t.id === selectedItem?.id)?.title)}</DialogTitle>
+          </DialogHeader>
+
+          {selectedItem && (
+            <div className="space-y-6">
+              {/* XP Configuration */}
+              <div>
+                <Label htmlFor="xp-reward">Récompense XP</Label>
+                <Input
+                  id="xp-reward"
+                  type="number"
+                  value={selectedItem.xpReward || 0}
+                  onChange={(e) => updateItemConfig(selectedItem.id, { xpReward: parseInt(e.target.value) || 0 })}
+                  placeholder="10"
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  XP gagnés lors de la complétion de cet élément
+                </p>
+              </div>
+
+              {/* Assignment Configuration - Only for exercises and topics */}
+              {(selectedItem.type === 'exercise' || selectedItem.type === 'topic') && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-base flex items-center gap-2">
+                      <Calendar className="w-5 h-5" />
+                      Configuration des devoirs
+                    </CardTitle>
+                    <CardDescription>
+                      Paramétrer les devoirs automatiques pour les utilisateurs inscrits
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        id="assignment-enabled"
+                        checked={selectedItem.assignmentConfig?.enabled || false}
+                        onChange={(e) => {
+                          const currentConfig = selectedItem.assignmentConfig || {
+                            enabled: false,
+                            frequency: 'daily' as const,
+                            requiredAccuracy: 80,
+                            repetitionsRequired: 3
+                          };
+                          updateItemConfig(selectedItem.id, {
+                            assignmentConfig: { ...currentConfig, enabled: e.target.checked }
+                          });
+                        }}
+                        className="w-4 h-4"
+                      />
+                      <Label htmlFor="assignment-enabled" className="cursor-pointer">
+                        Activer les devoirs automatiques
+                      </Label>
+                    </div>
+
+                    {selectedItem.assignmentConfig?.enabled && (
+                      <>
+                        <div>
+                          <Label htmlFor="frequency">Fréquence de révision</Label>
+                          <Select
+                            value={selectedItem.assignmentConfig?.frequency || 'daily'}
+                            onValueChange={(value) => {
+                              const currentConfig = selectedItem.assignmentConfig!;
+                              updateItemConfig(selectedItem.id, {
+                                assignmentConfig: { ...currentConfig, frequency: value as any }
+                              });
+                            }}
+                          >
+                            <SelectTrigger id="frequency">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="daily">Quotidien</SelectItem>
+                              <SelectItem value="every_2_days">Tous les 2 jours</SelectItem>
+                              <SelectItem value="every_3_days">Tous les 3 jours</SelectItem>
+                              <SelectItem value="weekly">Hebdomadaire</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        <div>
+                          <Label htmlFor="accuracy">Taux de réussite requis (%)</Label>
+                          <Input
+                            id="accuracy"
+                            type="number"
+                            min="0"
+                            max="100"
+                            value={selectedItem.assignmentConfig?.requiredAccuracy || 80}
+                            onChange={(e) => {
+                              const currentConfig = selectedItem.assignmentConfig!;
+                              updateItemConfig(selectedItem.id, {
+                                assignmentConfig: { ...currentConfig, requiredAccuracy: parseInt(e.target.value) || 80 }
+                              });
+                            }}
+                          />
+                          <p className="text-xs text-muted-foreground mt-1">
+                            L'utilisateur doit atteindre ce taux de réussite avant de passer à l'étape suivante
+                          </p>
+                        </div>
+
+                        <div>
+                          <Label htmlFor="repetitions">Nombre de répétitions requises</Label>
+                          <Input
+                            id="repetitions"
+                            type="number"
+                            min="1"
+                            max="10"
+                            value={selectedItem.assignmentConfig?.repetitionsRequired || 3}
+                            onChange={(e) => {
+                              const currentConfig = selectedItem.assignmentConfig!;
+                              updateItemConfig(selectedItem.id, {
+                                assignmentConfig: { ...currentConfig, repetitionsRequired: parseInt(e.target.value) || 3 }
+                              });
+                            }}
+                          />
+                          <p className="text-xs text-muted-foreground mt-1">
+                            Nombre de fois que l'exercice doit être complété avec succès
+                          </p>
+                        </div>
+                      </>
+                    )}
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+          )}
+
+          <DialogFooter>
+            <Button onClick={() => setConfigDialogOpen(false)}>
+              Fermer
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Rename Chapter/Subchapter Dialog */}
       <Dialog open={renameDialogOpen} onOpenChange={setRenameDialogOpen}>
@@ -1008,4 +1382,4 @@ const PathCreator = () => {
   );
 };
 
-export default PathCreator;
+export default PathEditor;

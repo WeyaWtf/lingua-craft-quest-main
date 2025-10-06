@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner";
+import { supabase } from "@/lib/supabase";
 import BurmeseKeyboard from "@/components/BurmeseKeyboard";
 import ThaiConsonantsPlayer from "@/components/ThaiConsonantsPlayer";
 import ThaiVowelsPlayer from "@/components/ThaiVowelsPlayer";
@@ -29,7 +30,106 @@ const Player = () => {
   const navigate = useNavigate();
   const { getExercise } = useExercises();
 
+  // Get pathId from query params
+  const searchParams = new URLSearchParams(window.location.search);
+  const pathId = searchParams.get('pathId');
+
   const exercise = getExercise(id || "");
+
+  // Function to mark exercise as completed
+  const handleCompleteExercise = async () => {
+    if (!id) return;
+
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast.error('Vous devez être connecté pour enregistrer votre progression');
+        return;
+      }
+
+      // Check if progress entry already exists
+      const { data: existing } = await supabase
+        .from('user_exercise_progress')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('exercise_id', id)
+        .eq('learning_path_id', pathId || '')
+        .single();
+
+      if (existing) {
+        // Update existing progress
+        const { error } = await supabase
+          .from('user_exercise_progress')
+          .update({
+            status: 'completed',
+            completed_at: new Date().toISOString(),
+            last_practiced_at: new Date().toISOString(),
+            success_count: (existing.success_count || 0) + 1,
+            attempts_count: (existing.attempts_count || 0) + 1
+          })
+          .eq('id', existing.id);
+
+        if (error) throw error;
+      } else {
+        // Create new progress entry
+        const { error } = await supabase
+          .from('user_exercise_progress')
+          .insert({
+            user_id: user.id,
+            exercise_id: id,
+            learning_path_id: pathId || null,
+            status: 'completed',
+            completed_at: new Date().toISOString(),
+            first_attempt_at: new Date().toISOString(),
+            attempts_count: 1,
+            success_count: 1
+          });
+
+        if (error) throw error;
+      }
+
+      // Update learning path progression if pathId exists
+      if (pathId) {
+        // Get total exercises count and completed count for this path
+        const { data: progressData } = await supabase
+          .from('user_exercise_progress')
+          .select('exercise_id, status')
+          .eq('user_id', user.id)
+          .eq('learning_path_id', pathId);
+
+        const completedCount = progressData?.filter(p => p.status === 'completed').length || 0;
+        const totalCount = progressData?.length || 1;
+        const completionPercentage = (completedCount / totalCount) * 100;
+
+        // Update the learning path progress
+        await supabase
+          .from('user_learning_paths')
+          .update({
+            completion_percentage: completionPercentage,
+            status: completionPercentage === 100 ? 'completed' : 'in_progress',
+            last_activity: new Date().toISOString()
+          })
+          .eq('user_id', user.id)
+          .eq('learning_path_id', pathId);
+      }
+
+      toast.success('✅ Exercice complété !', {
+        duration: 2000,
+      });
+
+      // Navigate back after a short delay
+      setTimeout(() => {
+        if (pathId) {
+          navigate(`/learning-path/${pathId}`);
+        } else {
+          navigate(-1);
+        }
+      }, 1500);
+    } catch (err: any) {
+      console.error('Error completing exercise:', err);
+      toast.error('Erreur lors de l\'enregistrement de la progression');
+    }
+  };
 
   // LOCKED: Route Katakana Mixer to its isolated player (before useState hooks)
   if (exercise && exercise.title === "Katakana Mixer - Jeu de placement des Katakana") {
@@ -1223,7 +1323,7 @@ const Player = () => {
 
     // LOCKED: Check if this is a locked Burmese exercise
     if (exercise.title === "Burmese Alphabet Chart - Tableau de l'alphabet birman") {
-      return <BurmeseAlphabetPlayer content={content} />;
+      return <BurmeseAlphabetPlayer content={content} onComplete={handleCompleteExercise} />;
     }
 
     if (exercise.title === "Burmese Vowels & Marks - Voyelles et signes birmans") {

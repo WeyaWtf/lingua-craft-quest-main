@@ -76,10 +76,7 @@ const PathList = () => {
                     <Button
                       variant="outline"
                       size="icon"
-                      onClick={() => {
-                        // TODO: Navigate to path editor when implemented
-                        console.log("Edit path:", path.id);
-                      }}
+                      onClick={() => navigate(`/creator/path/${path.id}/edit`)}
                     >
                       <Edit2 className="w-4 h-4" />
                     </Button>

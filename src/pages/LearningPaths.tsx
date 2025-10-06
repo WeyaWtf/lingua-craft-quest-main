@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import { Button } from "@/components/ui/button";
@@ -7,12 +7,43 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Progress } from "@/components/ui/progress";
 import { BookOpen, Trophy, Clock, ChevronRight, Star, Trash2 } from "lucide-react";
 import { useLearningPaths } from "@/contexts/LearningPathContext";
+import { supabase } from "@/lib/supabase";
 
 const LearningPaths = () => {
   const navigate = useNavigate();
   const { learningPaths, getPathProgress, deleteLearningPath } = useLearningPaths();
 
   const [filter, setFilter] = useState<string>("all");
+  const [enrolledPaths, setEnrolledPaths] = useState<Record<string, { completion_percentage: number; status: string }>>({});
+
+  // Load enrolled paths from Supabase
+  useEffect(() => {
+    const loadEnrolledPaths = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data, error } = await supabase
+        .from('user_learning_paths')
+        .select('learning_path_id, completion_percentage, status')
+        .eq('user_id', user.id);
+
+      if (error) {
+        console.error('Error loading enrolled paths:', error);
+        return;
+      }
+
+      const enrolledMap: Record<string, { completion_percentage: number; status: string }> = {};
+      data?.forEach(enrollment => {
+        enrolledMap[enrollment.learning_path_id] = {
+          completion_percentage: enrollment.completion_percentage || 0,
+          status: enrollment.status
+        };
+      });
+      setEnrolledPaths(enrolledMap);
+    };
+
+    loadEnrolledPaths();
+  }, []);
 
   const filteredPaths = learningPaths.filter(path => {
     if (filter === "all") return true;
@@ -61,10 +92,17 @@ const LearningPaths = () => {
         {/* Learning Paths Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
           {filteredPaths.map((path, index) => {
+            const enrollment = enrolledPaths[path.id];
+            const isEnrolled = !!enrollment;
+            const progressPercentage = enrollment?.completion_percentage || 0;
+
+            // Fallback to local progress if not enrolled
             const progress = getPathProgress(path.id);
             const completedCount = progress?.completedExercises.length || 0;
             const totalCount = path.exerciseIds.length;
-            const progressPercentage = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
+            const localProgressPercentage = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
+
+            const displayProgress = isEnrolled ? progressPercentage : localProgressPercentage;
 
             return (
               <Card
@@ -107,15 +145,41 @@ const LearningPaths = () => {
 
                 <CardContent className="space-y-4">
                   {/* Progress */}
-                  <div>
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="text-sm font-medium text-muted-foreground">Progression</span>
-                      <span className="text-sm font-bold text-foreground">
-                        {completedCount} / {totalCount} exercices
-                      </span>
+                  {isEnrolled ? (
+                    <div>
+                      <div className="flex justify-between items-center mb-2">
+                        <span className="text-sm font-medium text-muted-foreground">Progression</span>
+                        <span className="text-sm font-bold text-foreground">
+                          {Math.round(displayProgress)}%
+                        </span>
+                      </div>
+                      <Progress value={displayProgress} className="h-2" />
+                      <div className="mt-2">
+                        <Badge variant="secondary" className="text-xs">
+                          {enrollment.status === 'completed' ? '✅ Terminé' :
+                           enrollment.status === 'in_progress' ? '🔄 En cours' :
+                           enrollment.status === 'paused' ? '⏸️ En pause' : '📝 Inscrit'}
+                        </Badge>
+                      </div>
                     </div>
-                    <Progress value={progressPercentage} className="h-2" />
-                  </div>
+                  ) : (
+                    <div>
+                      <div className="flex justify-between items-center mb-2">
+                        <span className="text-sm font-medium text-muted-foreground">Contenu</span>
+                        <span className="text-sm font-bold text-foreground">
+                          {totalCount} exercices
+                        </span>
+                      </div>
+                      {localProgressPercentage > 0 && (
+                        <>
+                          <Progress value={localProgressPercentage} className="h-2" />
+                          <p className="text-xs text-muted-foreground mt-1">
+                            {completedCount} exercices complétés (non-inscrit)
+                          </p>
+                        </>
+                      )}
+                    </div>
+                  )}
 
                   {/* Stats */}
                   <div className="grid grid-cols-2 gap-4">
@@ -137,16 +201,18 @@ const LearningPaths = () => {
 
                 <CardFooter>
                   <Button className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-                    {progressPercentage === 100 ? (
-                      <>
-                        <Trophy className="w-4 h-4 mr-2" />
-                        Réviser
-                      </>
-                    ) : progressPercentage > 0 ? (
-                      <>
-                        Continuer
-                        <ChevronRight className="w-4 h-4 ml-2" />
-                      </>
+                    {isEnrolled ? (
+                      enrollment.status === 'completed' ? (
+                        <>
+                          <Trophy className="w-4 h-4 mr-2" />
+                          Réviser
+                        </>
+                      ) : (
+                        <>
+                          Continuer
+                          <ChevronRight className="w-4 h-4 ml-2" />
+                        </>
+                      )
                     ) : (
                       <>
                         Commencer

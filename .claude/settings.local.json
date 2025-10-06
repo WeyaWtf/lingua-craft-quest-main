@@ -12,7 +12,9 @@
       "Bash(git commit:*)",
       "Bash(git config:*)",
       "Bash(git tag:*)",
-      "Bash(npx supabase db dump:*)"
+      "Bash(npx supabase db dump:*)",
+      "Bash(npx supabase:*)",
+      "Bash(where psql)"
     ],
     "deny": [],
     "ask": []

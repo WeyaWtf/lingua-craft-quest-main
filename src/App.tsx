@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ExerciseProvider } from "./contexts/ExerciseContext";
 import { LearningPathProvider } from "./contexts/LearningPathContext";
 import { TopicProvider } from "./contexts/TopicContext";
+import { UserProgressProvider } from "./contexts/UserProgressContext";
 import Index from "./pages/Index";
 import Catalog from "./pages/Catalog";
 import LearningPaths from "./pages/LearningPaths";
@@ -16,6 +17,7 @@ import ExerciseCreator from "./pages/ExerciseCreator";
 import ExerciseList from "./pages/ExerciseList";
 import PathCreator from "./pages/PathCreator";
 import PathList from "./pages/PathList";
+import PathEditor from "./pages/PathEditor";
 import TopicCreator from "./pages/TopicCreator";
 import TopicList from "./pages/TopicList";
 import TopicEditor from "./pages/TopicEditor";
@@ -54,19 +56,25 @@ import InsertHiraganaFlashcards from "./pages/InsertHiraganaFlashcards";
 import InsertKatakanaFlashcards from "./pages/InsertKatakanaFlashcards";
 import InsertThaiFlashcards from "./pages/InsertThaiFlashcards";
 import InsertBurmeseFlashcards from "./pages/InsertBurmeseFlashcards";
+import GamificationTest from "./pages/GamificationTest";
+import SignIn from "./pages/SignIn";
+import SignUp from "./pages/SignUp";
+import Assignments from "./pages/Assignments";
+import MyLearning from "./pages/MyLearning";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <ExerciseProvider>
-      <LearningPathProvider>
-        <TopicProvider>
-          <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
+    <UserProgressProvider>
+      <ExerciseProvider>
+        <LearningPathProvider>
+          <TopicProvider>
+            <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/catalog" element={<Catalog />} />
@@ -79,6 +87,7 @@ const App = () => (
             <Route path="/creator/exercise-list" element={<ExerciseList />} />
             <Route path="/creator/path" element={<PathCreator />} />
             <Route path="/creator/path-list" element={<PathList />} />
+            <Route path="/creator/path/:id/edit" element={<PathEditor />} />
             <Route path="/creator/topic" element={<TopicCreator />} />
             <Route path="/creator/topic-list" element={<TopicList />} />
             <Route path="/creator/topic/:id" element={<TopicEditor />} />
@@ -117,14 +126,20 @@ const App = () => (
             <Route path="/insert-katakana-flashcards" element={<InsertKatakanaFlashcards />} />
             <Route path="/insert-thai-flashcards" element={<InsertThaiFlashcards />} />
             <Route path="/insert-burmese-flashcards" element={<InsertBurmeseFlashcards />} />
+            <Route path="/test-gamification" element={<GamificationTest />} />
+            <Route path="/signin" element={<SignIn />} />
+            <Route path="/signup" element={<SignUp />} />
+            <Route path="/assignments" element={<Assignments />} />
+            <Route path="/my-learning" element={<MyLearning />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
       </TooltipProvider>
-        </TopicProvider>
-      </LearningPathProvider>
-    </ExerciseProvider>
+          </TopicProvider>
+        </LearningPathProvider>
+      </ExerciseProvider>
+    </UserProgressProvider>
   </QueryClientProvider>
 );
 

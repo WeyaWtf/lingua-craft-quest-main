@@ -1,8 +1,43 @@
-import { Link, useLocation } from "react-router-dom";
-import { Home, BookOpen, Gamepad2, PenTool, Users, Route } from "lucide-react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Home, BookOpen, Gamepad2, PenTool, Users, Route, LogOut, User, GraduationCap, ClipboardList, Bell, MessageSquare, MessageCircle, Settings, CreditCard, Calendar, Coins, ShoppingBag, BarChart3, Edit3, HelpCircle } from "lucide-react";
+import { LevelBadge } from "./gamification/LevelBadge";
+import { CoinDisplay } from "./gamification/CoinDisplay";
+import { StreakIndicator } from "./gamification/StreakIndicator";
+import { Button } from "./ui/button";
+import { supabase } from "@/lib/supabase";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const Navigation = () => {
   const location = useLocation();
+  const navigate = useNavigate();
+  const [user, setUser] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Get initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+      setLoading(false);
+    });
+
+    // Listen for auth changes
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   const navItems = [
     { path: "/", label: "Accueil", icon: Home },
@@ -48,10 +83,138 @@ const Navigation = () => {
             })}
           </div>
 
-          <div className="flex items-center gap-2">
-            <button className="px-4 py-2 text-sm font-medium text-foreground hover:bg-accent rounded-lg transition-colors">
-              Se connecter
-            </button>
+          <div className="flex items-center gap-3">
+            {/* Gamification indicators - only show when logged in */}
+            {user && (
+              <div className="hidden lg:flex items-center gap-3">
+                <StreakIndicator size="sm" showLabel={false} />
+                <CoinDisplay size="sm" showLabel={false} onClick={() => {/* TODO: Navigate to shop */}} />
+                <LevelBadge size="md" showXP={false} />
+              </div>
+            )}
+
+            {/* Auth button */}
+            {loading ? (
+              <div className="w-24 h-9 bg-accent animate-pulse rounded-lg" />
+            ) : user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="flex items-center gap-2">
+                    <User className="w-4 h-4" />
+                    <span className="hidden md:inline">
+                      {user.user_metadata?.username || user.email?.split('@')[0]}
+                    </span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-64">
+                  <DropdownMenuLabel className="font-normal">
+                    <div className="flex flex-col space-y-1">
+                      <p className="text-sm font-medium leading-none">Mon compte</p>
+                      <p className="text-xs leading-none text-muted-foreground">
+                        {user.email}
+                      </p>
+                    </div>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+
+                  <DropdownMenuItem onClick={() => navigate('/my-learning')}>
+                    <GraduationCap className="w-4 h-4 mr-2" />
+                    Mon apprentissage
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate('/assignments')}>
+                    <ClipboardList className="w-4 h-4 mr-2" />
+                    Mes devoirs
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate('/learning-groups')}>
+                    <Users className="w-4 h-4 mr-2" />
+                    Groupe d'apprentissage
+                  </DropdownMenuItem>
+
+                  <DropdownMenuSeparator />
+
+                  <DropdownMenuItem onClick={() => navigate('/notifications')}>
+                    <Bell className="w-4 h-4 mr-2" />
+                    Notifications
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate('/messages')}>
+                    <MessageSquare className="w-4 h-4 mr-2" />
+                    Messages
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate('/forum')}>
+                    <MessageCircle className="w-4 h-4 mr-2" />
+                    Forum
+                  </DropdownMenuItem>
+
+                  <DropdownMenuSeparator />
+
+                  <DropdownMenuItem onClick={() => navigate('/account-settings')}>
+                    <Settings className="w-4 h-4 mr-2" />
+                    Paramètres du compte
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate('/payment-methods')}>
+                    <CreditCard className="w-4 h-4 mr-2" />
+                    Modes de paiement
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate('/subscriptions')}>
+                    <Calendar className="w-4 h-4 mr-2" />
+                    Abonnements
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate('/credits')}>
+                    <Coins className="w-4 h-4 mr-2" />
+                    Crédits
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate('/purchase-history')}>
+                    <ShoppingBag className="w-4 h-4 mr-2" />
+                    Historique des achats
+                  </DropdownMenuItem>
+
+                  <DropdownMenuSeparator />
+
+                  <DropdownMenuItem onClick={() => navigate('/profile')}>
+                    <User className="w-4 h-4 mr-2" />
+                    Profil public
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate('/edit-profile')}>
+                    <Edit3 className="w-4 h-4 mr-2" />
+                    Modifier le profil
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate('/help')}>
+                    <HelpCircle className="w-4 h-4 mr-2" />
+                    Aide et support
+                  </DropdownMenuItem>
+
+                  <DropdownMenuSeparator />
+
+                  <DropdownMenuItem
+                    onClick={async () => {
+                      await supabase.auth.signOut();
+                      toast.success('Déconnexion réussie');
+                      navigate('/');
+                    }}
+                    className="text-red-600 focus:text-red-600"
+                  >
+                    <LogOut className="w-4 h-4 mr-2" />
+                    Se déconnecter
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="ghost"
+                  onClick={() => navigate('/signin')}
+                  className="text-sm font-medium"
+                >
+                  Se connecter
+                </Button>
+                <Button
+                  onClick={() => navigate('/signup')}
+                  className="text-sm font-medium"
+                >
+                  S'inscrire
+                </Button>
+              </div>
+            )}
           </div>
         </div>
       </div>
