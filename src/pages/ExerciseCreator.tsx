@@ -136,6 +136,54 @@ const ExerciseCreator = () => {
     ]
   );
 
+  // Grammar Identification specific fields
+  const [grammarExercises, setGrammarExercises] = useState<Array<{
+    id: string;
+    sentence: string;
+    elements: Array<{ id: string; word: string; category: string; position: number }>;
+    translation: string;
+    hints?: string;
+  }>>(
+    existingExercise?.content?.exercises || [{ 
+      id: "1", 
+      sentence: "", 
+      elements: [], 
+      translation: "", 
+      hints: "" 
+    }]
+  );
+  const [currentGrammarIndex, setCurrentGrammarIndex] = useState(0);
+  const [grammarGeneralNotes, setGrammarGeneralNotes] = useState(existingExercise?.content?.generalNotes || "");
+
+  // Sentence Mixer specific fields
+  const [mixerExercises, setMixerExercises] = useState<Array<{
+    id: string;
+    reference: string;
+    blocks: Array<{ id: string; text: string; category: string; correctPosition: number }>;
+    correctOrder: string[];
+    translation: string;
+    hints?: string;
+    notes?: string;
+  }>>(
+    existingExercise?.content?.exercises || [{
+      id: "1",
+      reference: "",
+      blocks: [],
+      correctOrder: [],
+      translation: "",
+      hints: "",
+      notes: ""
+    }]
+  );
+  const [currentMixerIndex, setCurrentMixerIndex] = useState(0);
+  const [mixerDifficulty, setMixerDifficulty] = useState<"easy" | "normal" | "hard">(
+    existingExercise?.content?.difficulty || "easy"
+  );
+  const [mixerShowCategories, setMixerShowCategories] = useState<boolean>(
+    existingExercise?.content?.showCategories ?? true
+  );
+  const [mixerGeneralNotes, setMixerGeneralNotes] = useState(existingExercise?.content?.generalNotes || "");
+
   const exerciseTypes = [
     { value: "flashcard", icon: "📇", label: "Carte Flash", description: "Carte recto/verso pour la mémorisation" },
     { value: "association", icon: "🔗", label: "Association", description: "Reliez les concepts, sons et significations" },
@@ -223,6 +271,36 @@ const ExerciseCreator = () => {
       }
     }
 
+    if (selectedType === "grammar-identification") {
+      if (grammarExercises.length === 0) {
+        toast.error("Au moins un exercice d'identification est requis");
+        return false;
+      }
+      if (grammarExercises.some(ex => !ex.sentence.trim() || !ex.translation.trim())) {
+        toast.error("Tous les exercices doivent avoir une phrase et une traduction");
+        return false;
+      }
+      if (grammarExercises.some(ex => ex.elements.length === 0)) {
+        toast.error("Tous les exercices doivent avoir des éléments grammaticaux à identifier");
+        return false;
+      }
+    }
+
+    if (selectedType === "sentence-mixer") {
+      if (mixerExercises.length === 0) {
+        toast.error("Au moins un exercice de mixeur est requis");
+        return false;
+      }
+      if (mixerExercises.some(ex => !ex.reference.trim() || !ex.translation.trim())) {
+        toast.error("Tous les exercices doivent avoir une référence et une traduction");
+        return false;
+      }
+      if (mixerExercises.some(ex => ex.blocks.length === 0)) {
+        toast.error("Tous les exercices doivent avoir des blocs de mots");
+        return false;
+      }
+    }
+
     return true;
   };
 
@@ -272,6 +350,38 @@ const ExerciseCreator = () => {
             text: l.text.trim(),
             translation: l.translation.trim()
           })),
+        };
+      case "grammar-identification":
+        return {
+          exercises: grammarExercises.map(ex => ({
+            id: ex.id,
+            sentence: ex.sentence.trim(),
+            elements: ex.elements.map(el => ({
+              ...el,
+              word: el.word.trim()
+            })),
+            translation: ex.translation.trim(),
+            hints: ex.hints?.trim() || ""
+          })),
+          generalNotes: grammarGeneralNotes.trim()
+        };
+      case "sentence-mixer":
+        return {
+          exercises: mixerExercises.map(ex => ({
+            id: ex.id,
+            reference: ex.reference.trim(),
+            blocks: ex.blocks.map(block => ({
+              ...block,
+              text: block.text.trim()
+            })),
+            correctOrder: ex.correctOrder,
+            translation: ex.translation.trim(),
+            hints: ex.hints?.trim() || "",
+            notes: ex.notes?.trim() || ""
+          })),
+          difficulty: mixerDifficulty,
+          showCategories: mixerShowCategories,
+          generalNotes: mixerGeneralNotes.trim()
         };
       default:
         return {};
@@ -1275,22 +1385,561 @@ const ExerciseCreator = () => {
           </div>
         )}
 
-        {/* Placeholder for new exercise types - To be implemented */}
-        {(selectedType === "grammar-identification" || 
-          selectedType === "sentence-mixer" || 
-          selectedType === "grammar-transformation" || 
-          selectedType === "error-hunt") && (
+        {/* Exercise Content Section - Grammar Identification */}
+        {selectedType === "grammar-identification" && (
+          <div className="bg-card rounded-xl border border-border p-6 mb-6 shadow-sm animate-scale-in">
+            <div className="flex items-center gap-2 mb-6">
+              <span className="text-2xl">🔍</span>
+              <h2 className="text-xl font-bold text-foreground">Contenu de l'exercice - Identification Grammaticale</h2>
+            </div>
+
+            <p className="text-sm text-muted-foreground mb-6">
+              Créez des exercices où l'utilisateur doit identifier les catégories grammaticales des mots (pronoms, noms, verbes, etc.) puis traduire la phrase complète.
+            </p>
+
+            {/* Navigation entre les exercices */}
+            <div className="flex items-center justify-between mb-6 pb-4 border-b border-border">
+              <div className="flex items-center gap-3">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentGrammarIndex(Math.max(0, currentGrammarIndex - 1))}
+                  disabled={currentGrammarIndex === 0}
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </Button>
+
+                <div className="text-center">
+                  <p className="text-sm font-semibold">Exercice {currentGrammarIndex + 1} / {grammarExercises.length}</p>
+                </div>
+
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentGrammarIndex(Math.min(grammarExercises.length - 1, currentGrammarIndex + 1))}
+                  disabled={currentGrammarIndex === grammarExercises.length - 1}
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </Button>
+              </div>
+
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    const newExercises = [...grammarExercises];
+                    newExercises.splice(currentGrammarIndex, 1);
+                    setGrammarExercises(newExercises);
+                    setCurrentGrammarIndex(Math.max(0, currentGrammarIndex - 1));
+                  }}
+                  disabled={grammarExercises.length === 1}
+                >
+                  <Trash2 className="w-4 h-4 mr-1" />
+                  Supprimer
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={() => {
+                    setGrammarExercises([...grammarExercises, {
+                      id: Date.now().toString(),
+                      sentence: "",
+                      elements: [],
+                      translation: "",
+                      hints: ""
+                    }]);
+                    setCurrentGrammarIndex(grammarExercises.length);
+                  }}
+                >
+                  <Plus className="w-4 h-4 mr-1" />
+                  Nouvel exercice
+                </Button>
+              </div>
+            </div>
+
+            {/* Formulaire de l'exercice actuel */}
+            <div className="space-y-6">
+              <div>
+                <Label htmlFor="grammarSentence" className="text-base mb-2">
+                  Phrase complète * (en birman)
+                </Label>
+                <Input
+                  id="grammarSentence"
+                  placeholder="Ex: ကျွန်တော် ထမင်း စားတယ်"
+                  value={grammarExercises[currentGrammarIndex]?.sentence || ""}
+                  onChange={(e) => {
+                    const newExercises = [...grammarExercises];
+                    newExercises[currentGrammarIndex].sentence = e.target.value;
+                    setGrammarExercises(newExercises);
+                  }}
+                  className="text-lg"
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Séparez les mots par des espaces. Chaque mot sera analysé individuellement.
+                </p>
+              </div>
+
+              <div>
+                <Label className="text-base mb-2">
+                  Éléments grammaticaux à identifier *
+                </Label>
+                <p className="text-xs text-muted-foreground mb-3">
+                  Pour chaque mot de la phrase, indiquez sa catégorie grammaticale.
+                </p>
+
+                <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg mb-4">
+                  <p className="text-sm font-semibold text-blue-900 mb-2">Catégories disponibles :</p>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                    <Badge variant="outline">👤 pronoun (Pronom)</Badge>
+                    <Badge variant="outline">📦 noun (Nom)</Badge>
+                    <Badge variant="outline">⚡ verb (Verbe)</Badge>
+                    <Badge variant="outline">🎨 adjective (Adjectif)</Badge>
+                    <Badge variant="outline">🔧 adverb (Adverbe)</Badge>
+                    <Badge variant="outline">🔗 particle (Particule)</Badge>
+                    <Badge variant="outline">📍 preposition (Préposition)</Badge>
+                    <Badge variant="outline">🔢 number (Nombre)</Badge>
+                  </div>
+                </div>
+
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    const sentence = grammarExercises[currentGrammarIndex]?.sentence || "";
+                    const words = sentence.split(" ").filter(w => w.trim());
+                    const elements = words.map((word, index) => ({
+                      id: `word-${index}`,
+                      word: word.trim(),
+                      category: "noun",
+                      position: index
+                    }));
+                    const newExercises = [...grammarExercises];
+                    newExercises[currentGrammarIndex].elements = elements;
+                    setGrammarExercises(newExercises);
+                    toast.success(`${words.length} éléments détectés automatiquement`);
+                  }}
+                  className="mb-3"
+                >
+                  Détecter les mots automatiquement
+                </Button>
+
+                <div className="space-y-3">
+                  {(grammarExercises[currentGrammarIndex]?.elements || []).map((element, idx) => (
+                    <div key={element.id} className="grid grid-cols-1 md:grid-cols-[1fr_1fr_auto] gap-4 p-3 bg-accent/20 rounded-lg">
+                      <div>
+                        <Label className="text-xs mb-1">Mot {idx + 1}</Label>
+                        <Input
+                          value={element.word}
+                          onChange={(e) => {
+                            const newExercises = [...grammarExercises];
+                            newExercises[currentGrammarIndex].elements[idx].word = e.target.value;
+                            setGrammarExercises(newExercises);
+                          }}
+                        />
+                      </div>
+                      <div>
+                        <Label className="text-xs mb-1">Catégorie</Label>
+                        <Select
+                          value={element.category}
+                          onValueChange={(value) => {
+                            const newExercises = [...grammarExercises];
+                            newExercises[currentGrammarIndex].elements[idx].category = value;
+                            setGrammarExercises(newExercises);
+                          }}
+                        >
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="pronoun">👤 Pronom</SelectItem>
+                            <SelectItem value="noun">📦 Nom</SelectItem>
+                            <SelectItem value="verb">⚡ Verbe</SelectItem>
+                            <SelectItem value="adjective">🎨 Adjectif</SelectItem>
+                            <SelectItem value="adverb">🔧 Adverbe</SelectItem>
+                            <SelectItem value="particle">🔗 Particule</SelectItem>
+                            <SelectItem value="preposition">📍 Préposition</SelectItem>
+                            <SelectItem value="number">🔢 Nombre</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="flex items-end">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => {
+                            const newExercises = [...grammarExercises];
+                            newExercises[currentGrammarIndex].elements = 
+                              newExercises[currentGrammarIndex].elements.filter((_, i) => i !== idx);
+                            setGrammarExercises(newExercises);
+                          }}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <Button
+                  variant="outline"
+                  className="mt-3 w-full"
+                  onClick={() => {
+                    const newExercises = [...grammarExercises];
+                    const currentElements = newExercises[currentGrammarIndex].elements;
+                    currentElements.push({
+                      id: `word-${currentElements.length}`,
+                      word: "",
+                      category: "noun",
+                      position: currentElements.length
+                    });
+                    setGrammarExercises(newExercises);
+                  }}
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Ajouter un élément
+                </Button>
+              </div>
+
+              <div>
+                <Label htmlFor="grammarTranslation" className="text-base mb-2">
+                  Traduction attendue *
+                </Label>
+                <Input
+                  id="grammarTranslation"
+                  placeholder="Ex: Je mange du riz"
+                  value={grammarExercises[currentGrammarIndex]?.translation || ""}
+                  onChange={(e) => {
+                    const newExercises = [...grammarExercises];
+                    newExercises[currentGrammarIndex].translation = e.target.value;
+                    setGrammarExercises(newExercises);
+                  }}
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="grammarHints" className="text-base mb-2">
+                  Indices (optionnel)
+                </Label>
+                <Textarea
+                  id="grammarHints"
+                  placeholder="Ex: Structure SOV : Sujet + Objet + Verbe"
+                  rows={2}
+                  value={grammarExercises[currentGrammarIndex]?.hints || ""}
+                  onChange={(e) => {
+                    const newExercises = [...grammarExercises];
+                    newExercises[currentGrammarIndex].hints = e.target.value;
+                    setGrammarExercises(newExercises);
+                  }}
+                />
+              </div>
+            </div>
+
+            {/* Notes générales */}
+            <div className="mt-6 pt-6 border-t border-border">
+              <Label htmlFor="grammarGeneralNotes" className="text-base mb-2">
+                📝 Notes générales de l'exercice (optionnel)
+              </Label>
+              <Textarea
+                id="grammarGeneralNotes"
+                placeholder="Ajoutez des notes générales accessibles pendant tout l'exercice..."
+                rows={4}
+                value={grammarGeneralNotes}
+                onChange={(e) => setGrammarGeneralNotes(e.target.value)}
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Exercise Content Section - Sentence Mixer */}
+        {selectedType === "sentence-mixer" && (
+          <div className="bg-card rounded-xl border border-border p-6 mb-6 shadow-sm animate-scale-in">
+            <div className="flex items-center gap-2 mb-6">
+              <span className="text-2xl">🔀</span>
+              <h2 className="text-xl font-bold text-foreground">Contenu de l'exercice - Mixeur de Phrases</h2>
+            </div>
+
+            <p className="text-sm text-muted-foreground mb-6">
+              Créez des exercices où l'utilisateur doit remettre les mots dans le bon ordre pour reconstituer une phrase, puis la traduire.
+            </p>
+
+            {/* Difficulté et options */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <div>
+                <Label className="text-sm mb-2">Niveau de difficulté</Label>
+                <Select value={mixerDifficulty} onValueChange={(value: "easy" | "normal" | "hard") => setMixerDifficulty(value)}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="easy">⭐ Facile</SelectItem>
+                    <SelectItem value="normal">⭐⭐ Normal</SelectItem>
+                    <SelectItem value="hard">⭐⭐⭐ Difficile</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <Checkbox
+                  id="mixerShowCategories"
+                  checked={mixerShowCategories}
+                  onCheckedChange={(checked) => setMixerShowCategories(!!checked)}
+                />
+                <Label htmlFor="mixerShowCategories" className="text-sm cursor-pointer">
+                  🎨 Afficher les catégories grammaticales
+                </Label>
+              </div>
+            </div>
+
+            {/* Navigation entre les exercices */}
+            <div className="flex items-center justify-between mb-6 pb-4 border-b border-border">
+              <div className="flex items-center gap-3">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentMixerIndex(Math.max(0, currentMixerIndex - 1))}
+                  disabled={currentMixerIndex === 0}
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </Button>
+
+                <div className="text-center">
+                  <p className="text-sm font-semibold">Exercice {currentMixerIndex + 1} / {mixerExercises.length}</p>
+                </div>
+
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentMixerIndex(Math.min(mixerExercises.length - 1, currentMixerIndex + 1))}
+                  disabled={currentMixerIndex === mixerExercises.length - 1}
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </Button>
+              </div>
+
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    const newExercises = [...mixerExercises];
+                    newExercises.splice(currentMixerIndex, 1);
+                    setMixerExercises(newExercises);
+                    setCurrentMixerIndex(Math.max(0, currentMixerIndex - 1));
+                  }}
+                  disabled={mixerExercises.length === 1}
+                >
+                  <Trash2 className="w-4 h-4 mr-1" />
+                  Supprimer
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={() => {
+                    setMixerExercises([...mixerExercises, {
+                      id: Date.now().toString(),
+                      reference: "",
+                      blocks: [],
+                      correctOrder: [],
+                      translation: "",
+                      hints: "",
+                      notes: ""
+                    }]);
+                    setCurrentMixerIndex(mixerExercises.length);
+                  }}
+                >
+                  <Plus className="w-4 h-4 mr-1" />
+                  Nouvel exercice
+                </Button>
+              </div>
+            </div>
+
+            {/* Formulaire de l'exercice actuel */}
+            <div className="space-y-6">
+              <div>
+                <Label htmlFor="mixerReference" className="text-base mb-2">
+                  Phrase de référence * (traduction française)
+                </Label>
+                <Input
+                  id="mixerReference"
+                  placeholder="Ex: Je mange du riz"
+                  value={mixerExercises[currentMixerIndex]?.reference || ""}
+                  onChange={(e) => {
+                    const newExercises = [...mixerExercises];
+                    newExercises[currentMixerIndex].reference = e.target.value;
+                    setMixerExercises(newExercises);
+                  }}
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Cette référence aidera l'utilisateur à comprendre ce qu'il doit reconstituer.
+                </p>
+              </div>
+
+              <div>
+                <Label className="text-base mb-2">
+                  Blocs de mots * (ordre correct)
+                </Label>
+                <p className="text-xs text-muted-foreground mb-3">
+                  Créez les blocs de mots dans le bon ordre. Ils seront mélangés automatiquement pendant l'exercice.
+                </p>
+
+                <div className="space-y-3">
+                  {(mixerExercises[currentMixerIndex]?.blocks || []).map((block, idx) => (
+                    <div key={block.id} className="grid grid-cols-1 md:grid-cols-[2fr_1fr_auto] gap-4 p-3 bg-accent/20 rounded-lg">
+                      <div>
+                        <Label className="text-xs mb-1">Texte du bloc {idx + 1}</Label>
+                        <Input
+                          placeholder="Ex: ကျွန်တော်"
+                          value={block.text}
+                          onChange={(e) => {
+                            const newExercises = [...mixerExercises];
+                            newExercises[currentMixerIndex].blocks[idx].text = e.target.value;
+                            setMixerExercises(newExercises);
+                          }}
+                        />
+                      </div>
+                      <div>
+                        <Label className="text-xs mb-1">Catégorie</Label>
+                        <Select
+                          value={block.category}
+                          onValueChange={(value) => {
+                            const newExercises = [...mixerExercises];
+                            newExercises[currentMixerIndex].blocks[idx].category = value;
+                            setMixerExercises(newExercises);
+                          }}
+                        >
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="pronoun">👤 Pronom</SelectItem>
+                            <SelectItem value="noun">📦 Nom</SelectItem>
+                            <SelectItem value="verb">⚡ Verbe</SelectItem>
+                            <SelectItem value="adjective">🎨 Adjectif</SelectItem>
+                            <SelectItem value="adverb">🔧 Adverbe</SelectItem>
+                            <SelectItem value="particle">🔗 Particule</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="flex items-end">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => {
+                            const newExercises = [...mixerExercises];
+                            const blocks = newExercises[currentMixerIndex].blocks;
+                            newExercises[currentMixerIndex].blocks = blocks.filter((_, i) => i !== idx);
+                            // Mettre à jour correctOrder
+                            const removedId = blocks[idx].id;
+                            newExercises[currentMixerIndex].correctOrder = 
+                              newExercises[currentMixerIndex].correctOrder.filter(id => id !== removedId);
+                            setMixerExercises(newExercises);
+                          }}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <Button
+                  variant="outline"
+                  className="mt-3 w-full"
+                  onClick={() => {
+                    const newExercises = [...mixerExercises];
+                    const blocks = newExercises[currentMixerIndex].blocks;
+                    const newBlockId = `b${currentMixerIndex + 1}-${blocks.length + 1}`;
+                    blocks.push({
+                      id: newBlockId,
+                      text: "",
+                      category: "noun",
+                      correctPosition: blocks.length
+                    });
+                    // Mettre à jour correctOrder
+                    newExercises[currentMixerIndex].correctOrder.push(newBlockId);
+                    setMixerExercises(newExercises);
+                  }}
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Ajouter un bloc
+                </Button>
+              </div>
+
+              <div>
+                <Label htmlFor="mixerTranslation" className="text-base mb-2">
+                  Traduction complète * (même que la référence)
+                </Label>
+                <Input
+                  id="mixerTranslation"
+                  placeholder="Ex: Je mange du riz"
+                  value={mixerExercises[currentMixerIndex]?.translation || ""}
+                  onChange={(e) => {
+                    const newExercises = [...mixerExercises];
+                    newExercises[currentMixerIndex].translation = e.target.value;
+                    setMixerExercises(newExercises);
+                  }}
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="mixerHints" className="text-base mb-2">
+                  Indices (optionnel)
+                </Label>
+                <Textarea
+                  id="mixerHints"
+                  placeholder="Ex: Structure SOV : Sujet + Objet + Verbe"
+                  rows={2}
+                  value={mixerExercises[currentMixerIndex]?.hints || ""}
+                  onChange={(e) => {
+                    const newExercises = [...mixerExercises];
+                    newExercises[currentMixerIndex].hints = e.target.value;
+                    setMixerExercises(newExercises);
+                  }}
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="mixerNotes" className="text-base mb-2">
+                  Notes (optionnel)
+                </Label>
+                <Textarea
+                  id="mixerNotes"
+                  placeholder="Notes spécifiques à cet exercice..."
+                  rows={2}
+                  value={mixerExercises[currentMixerIndex]?.notes || ""}
+                  onChange={(e) => {
+                    const newExercises = [...mixerExercises];
+                    newExercises[currentMixerIndex].notes = e.target.value;
+                    setMixerExercises(newExercises);
+                  }}
+                />
+              </div>
+            </div>
+
+            {/* Notes générales */}
+            <div className="mt-6 pt-6 border-t border-border">
+              <Label htmlFor="mixerGeneralNotes" className="text-base mb-2">
+                📝 Notes générales de l'exercice (optionnel)
+              </Label>
+              <Textarea
+                id="mixerGeneralNotes"
+                placeholder="Ajoutez des notes générales accessibles pendant tout l'exercice..."
+                rows={4}
+                value={mixerGeneralNotes}
+                onChange={(e) => setMixerGeneralNotes(e.target.value)}
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Placeholder for remaining exercise types */}
+        {(selectedType === "grammar-transformation" || selectedType === "error-hunt") && (
           <div className="bg-card rounded-xl border border-border p-6 mb-6 shadow-sm animate-scale-in">
             <div className="flex items-center gap-2 mb-6">
               <span className="text-2xl">
-                {selectedType === "grammar-identification" && "🔍"}
-                {selectedType === "sentence-mixer" && "🔀"}
                 {selectedType === "grammar-transformation" && "💬"}
                 {selectedType === "error-hunt" && "🎯"}
               </span>
               <h2 className="text-xl font-bold text-foreground">
-                {selectedType === "grammar-identification" && "Identification Grammaticale"}
-                {selectedType === "sentence-mixer" && "Mixeur de Phrases"}
                 {selectedType === "grammar-transformation" && "Transformation Grammaticale"}
                 {selectedType === "error-hunt" && "Chasse aux Erreurs"}
               </h2>
@@ -1305,30 +1954,6 @@ const ExerciseCreator = () => {
               <p className="text-sm text-muted-foreground">
                 Les players sont prêts et fonctionnels. Vous pourrez bientôt créer ces exercices directement depuis cette interface.
               </p>
-            </div>
-
-            <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-              <h4 className="font-semibold mb-2">💡 À propos de ce type d'exercice :</h4>
-              {selectedType === "grammar-identification" && (
-                <p className="text-sm text-muted-foreground">
-                  L'identification grammaticale permet d'apprendre à reconnaître les différents éléments d'une phrase (particules, verbes, noms, etc.) et de traduire la phrase complète.
-                </p>
-              )}
-              {selectedType === "sentence-mixer" && (
-                <p className="text-sm text-muted-foreground">
-                  Le mixeur de phrases propose de reconstruire des phrases dont les mots ont été mélangés, avec option d'affichage des catégories grammaticales selon le niveau de difficulté.
-                </p>
-              )}
-              {selectedType === "grammar-transformation" && (
-                <p className="text-sm text-muted-foreground">
-                  La transformation grammaticale consiste à modifier une phrase selon des instructions (changement de temps, de modalité, de personne, etc.) puis à la traduire.
-                </p>
-              )}
-              {selectedType === "error-hunt" && (
-                <p className="text-sm text-muted-foreground">
-                  La chasse aux erreurs permet de détecter et corriger les erreurs dans des phrases (particules incorrectes, conjugaison, ordre des mots, etc.) avant de traduire la version correcte.
-                </p>
-              )}
             </div>
           </div>
         )}

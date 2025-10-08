@@ -1,0 +1,32 @@
+🇹🇭 Progression grammaticale cumulative — Thaï (20 niveaux)
+| **Niveau** | **Structure ajoutée**   | **Phrase (ไทย)**             | **Romanisation**                         | **Traduction française**                    | **Élément grammatical clé**                 |
+| ---------- | ----------------------- | ---------------------------- | ---------------------------------------- | ------------------------------------------- | ------------------------------------------- |
+| **1**      | Sujet + Verbe           | ฉันกิน                       | *chăn kin*                               | Je mange.                                   | Phrase de base S + V                        |
+| **2**      | + Objet                 | ฉันกินข้าว                   | *chăn kin khâo*                          | Je mange du riz.                            | Objet direct après le verbe                 |
+| **3**      | + Lieu                  | ฉันกินข้าวที่บ้าน            | *chăn kin khâo thîi bâan*                | Je mange du riz à la maison.                | Préposition ที่ (*thîi* = à)                |
+| **4**      | + Compagnie             | ฉันกินข้าวกับครอบครัว        | *chăn kin khâo kàp khrôp-khrua*          | Je mange du riz avec ma famille.            | Préposition กับ (*kàp* = avec)              |
+| **5**      | + Temps (moment précis) | ฉันกินข้าวตอนเย็น            | *chăn kin khâo ton yen*                  | Je mange du riz le soir.                    | Expression temporelle ตอน (*ton*)           |
+| **6**      | + Fréquence             | ฉันกินข้าวทุกวัน             | *chăn kin khâo thúk wan*                 | Je mange du riz tous les jours.             | Adverbe de fréquence ทุกวัน (*thúk wan*)    |
+| **7**      | + Manière               | ฉันกินข้าวช้าๆ               | *chăn kin khâo cháa-cháa*                | Je mange lentement.                         | Adverbe de manière (répétition)             |
+| **8**      | + Volonté / désir       | ฉันอยากกินข้าว               | *chăn yàak kin khâo*                     | Je veux manger du riz.                      | Verbe modal อยาก (*yàak* = vouloir)         |
+| **9**      | + Adjectif du nom       | ฉันกินข้าวอร่อย              | *chăn kin khâo a-ròi*                    | Je mange du riz délicieux.                  | Adjectif après le nom                       |
+| **10**     | + Connecteur simple     | ฉันกินข้าวและดื่มน้ำ         | *chăn kin khâo láe duum nám*             | Je mange du riz et je bois de l’eau.        | Connecteur และ (*láe* = et)                 |
+| **11**     | + Cause                 | ฉันกินข้าวเพราะหิว           | *chăn kin khâo phró hǐu*                 | Je mange du riz parce que j’ai faim.        | Conjonction เพราะ (*phró* = parce que)      |
+| **12**     | + But                   | ฉันกินข้าวเพื่อมีแรง         | *chăn kin khâo phʉ̂a mii rɛɛng*          | Je mange du riz pour avoir de l’énergie.    | Préposition เพื่อ (*phʉ̂a* = pour)          |
+| **13**     | + Condition             | ถ้ามีข้าว ฉันจะกิน           | *thâa mii khâo, chăn jà kin*             | S’il y a du riz, je mangerai.               | Conditionnel ถ้า (*thâa* = si)              |
+| **14**     | + Opposition            | ฉันชอบข้าวแต่ไม่ชอบน้ำ       | *chăn châwp khâo tɛ̀ɛ mâi châwp nám*     | J’aime le riz mais pas l’eau.               | Connecteur แต่ (*tɛ̀ɛ* = mais)              |
+| **15**     | + Quantité              | ฉันกินข้าวมาก                | *chăn kin khâo mâak*                     | Je mange beaucoup de riz.                   | Adverbe de quantité มาก (*mâak*)            |
+| **16**     | + Temps verbal (passé)  | เมื่อวานฉันกินข้าวแล้ว       | *mʉ̂a-waan chăn kin khâo lɛ́ɛo*          | Hier, j’ai mangé du riz.                    | Particule แล้ว (*lɛ́ɛo* = passé accompli)   |
+| **17**     | + Discours indirect     | เขาบอกว่าฉันกินข้าว          | *khăo bàwk wâa chăn kin khâo*            | Il dit que je mange du riz.                 | Subordonnée ว่า (*wâa* = que)               |
+| **18**     | + Relative              | ข้าวที่ฉันกินอร่อยมาก        | *khâo thîi chăn kin a-ròi mâak*          | Le riz que je mange est très bon.           | Proposition relative ที่ (*thîi*)           |
+| **19**     | + Connecteur contrastif | ฉันกินข้าว แต่เพื่อนดื่มกาแฟ | *chăn kin khâo tɛ̀ɛ phʉ̂an duum gaa-fɛɛ* | Je mange du riz, mais mon ami boit du café. | Coordination contrastive                    |
+| **20**     | + Enchaînement temporel | กินข้าวเสร็จแล้วไปทำงาน      | *kin khâo sèt lɛ́ɛo pai tham-ngaan*      | Après avoir mangé, je vais au travail.      | Connecteur temporel เสร็จแล้ว (*sèt lɛ́ɛo*) |
+
+🧩 Blocs pédagogiques simplifiés
+| **Bloc**   | **Thème principal**      | **Niveaux** | **Objectif**                                     |
+| ---------- | ------------------------ | ----------- | ------------------------------------------------ |
+| **Bloc 1** | Phrases simples          | 1–4         | Construire des phrases Sujet + Verbe + Objet     |
+| **Bloc 2** | Temps / lieu / manière   | 5–7         | Enrichir la phrase avec des compléments          |
+| **Bloc 3** | Volonté / opinion        | 8–9         | Exprimer la volonté, la qualité                  |
+| **Bloc 4** | Logique et subordination | 10–14       | Connecteurs : et, parce que, pour, si, mais      |
+| **Bloc 5** | Enchaînement / nuance    | 15–20       | Quantité, passé, discours, relatifs, chronologie |

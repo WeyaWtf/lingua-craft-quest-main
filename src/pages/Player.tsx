@@ -24,6 +24,8 @@ import KatakanaMixerFullPlayer from "@/components/KatakanaMixerFullPlayer";
 import HiraganaMixerFullPlayer from "@/components/HiraganaMixerFullPlayer";
 import BurmeseAlphabetMixerFullPlayer from "@/components/BurmeseAlphabetMixerFullPlayer";
 import ThaiConsonantsMixerFullPlayer from "@/components/ThaiConsonantsMixerFullPlayer";
+import SentenceMixerPlayer from "@/components/SentenceMixerPlayer";
+import GrammarIdentificationPlayer from "@/components/GrammarIdentificationPlayer";
 
 const Player = () => {
   const { id } = useParams<{ id: string }>();
@@ -1654,6 +1656,10 @@ const Player = () => {
         return renderTranslationPlayer();
       case "alphabet":
         return renderAlphabetPlayer();
+      case "sentence-mixer":
+        return <SentenceMixerPlayer content={exercise.content} onComplete={handleCompleteExercise} />;
+      case "grammar-identification":
+        return <GrammarIdentificationPlayer content={exercise.content} onComplete={handleCompleteExercise} />;
       default:
         return (
           <div className="text-center py-16">

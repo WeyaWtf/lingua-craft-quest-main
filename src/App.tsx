@@ -125,8 +125,20 @@ import InsertKatakanaFlashcards from "./pages/InsertKatakanaFlashcards";
 import DebugPath from "./pages/DebugPath";
 import MigratePath from "./pages/MigratePath";
 import CreateJapList1000 from "./pages/CreateJapList1000";
+import CreateBurmeseList1000 from "./pages/CreateBurmeseList1000";
+import CreateThaiList1000 from "./pages/CreateThaiList1000";
 import InsertThaiFlashcards from "./pages/InsertThaiFlashcards";
 import InsertBurmeseFlashcards from "./pages/InsertBurmeseFlashcards";
+import InsertBurmeseLevel1Flashcard from "./pages/InsertBurmeseLevel1Flashcard";
+import InsertBurmeseLevel1Quiz from "./pages/InsertBurmeseLevel1Quiz";
+import InsertBurmeseLevel1Association from "./pages/InsertBurmeseLevel1Association";
+import InsertBurmeseLevel1Grammar from "./pages/InsertBurmeseLevel1Grammar";
+import InsertBurmeseLevel1Mixer from "./pages/InsertBurmeseLevel1Mixer";
+import InsertBurmeseLevel2Flashcard from "./pages/InsertBurmeseLevel2Flashcard";
+import InsertBurmeseLevel2Quiz from "./pages/InsertBurmeseLevel2Quiz";
+import InsertBurmeseLevel2Association from "./pages/InsertBurmeseLevel2Association";
+import InsertBurmeseLevel2Grammar from "./pages/InsertBurmeseLevel2Grammar";
+import InsertBurmeseLevel2Mixer from "./pages/InsertBurmeseLevel2Mixer";
 import InsertMyrBundle1Association from "./pages/InsertMyrBundle1Association";
 import InsertMyrBundle1Flashcard from "./pages/InsertMyrBundle1Flashcard";
 import InsertMyrBundle2Association from "./pages/InsertMyrBundle2Association";
@@ -425,6 +437,16 @@ const App = () => (
             <Route path="/insert-katakana-flashcards" element={<InsertKatakanaFlashcards />} />
             <Route path="/insert-thai-flashcards" element={<InsertThaiFlashcards />} />
             <Route path="/insert-burmese-flashcards" element={<InsertBurmeseFlashcards />} />
+            <Route path="/insert-burmese-level1-flashcard" element={<InsertBurmeseLevel1Flashcard />} />
+            <Route path="/insert-burmese-level1-quiz" element={<InsertBurmeseLevel1Quiz />} />
+            <Route path="/insert-burmese-level1-association" element={<InsertBurmeseLevel1Association />} />
+            <Route path="/insert-burmese-level1-grammar" element={<InsertBurmeseLevel1Grammar />} />
+            <Route path="/insert-burmese-level1-mixer" element={<InsertBurmeseLevel1Mixer />} />
+            <Route path="/insert-burmese-level2-flashcard" element={<InsertBurmeseLevel2Flashcard />} />
+            <Route path="/insert-burmese-level2-quiz" element={<InsertBurmeseLevel2Quiz />} />
+            <Route path="/insert-burmese-level2-association" element={<InsertBurmeseLevel2Association />} />
+            <Route path="/insert-burmese-level2-grammar" element={<InsertBurmeseLevel2Grammar />} />
+            <Route path="/insert-burmese-level2-mixer" element={<InsertBurmeseLevel2Mixer />} />
             <Route path="/insert-myr-bundle1-association" element={<InsertMyrBundle1Association />} />
             <Route path="/insert-myr-bundle1-flashcard" element={<InsertMyrBundle1Flashcard />} />
             <Route path="/insert-myr-bundle2-association" element={<InsertMyrBundle2Association />} />
@@ -593,6 +615,8 @@ const App = () => (
             <Route path="/debug-path" element={<DebugPath />} />
             <Route path="/migrate-path" element={<MigratePath />} />
             <Route path="/create-jap-list-1000" element={<CreateJapList1000 />} />
+            <Route path="/create-burmese-list-1000" element={<CreateBurmeseList1000 />} />
+            <Route path="/create-thai-list-1000" element={<CreateThaiList1000 />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

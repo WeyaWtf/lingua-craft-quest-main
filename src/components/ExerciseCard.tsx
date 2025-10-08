@@ -3,7 +3,7 @@ import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 
 interface ExerciseCardProps {
-  type: "flashcard" | "association" | "quiz" | "completion" | "translation" | "conversation";
+  type: "flashcard" | "association" | "quiz" | "completion" | "translation" | "conversation" | "grammar-identification" | "sentence-mixer" | "grammar-transformation" | "error-hunt";
   title: string;
   description: string;
   difficulty: 1 | 2 | 3 | 4 | 5;
@@ -45,6 +45,26 @@ const exerciseConfig = {
     icon: "💬",
     label: "Conversation",
     colorClass: "bg-exercise-conversation-light text-exercise-conversation border-exercise-conversation/20",
+  },
+  "grammar-identification": {
+    icon: "🔍",
+    label: "Identification Grammaticale",
+    colorClass: "bg-blue-50 text-blue-700 border-blue-200",
+  },
+  "sentence-mixer": {
+    icon: "🔀",
+    label: "Mixeur de Phrases",
+    colorClass: "bg-purple-50 text-purple-700 border-purple-200",
+  },
+  "grammar-transformation": {
+    icon: "💬",
+    label: "Transformation Grammaticale",
+    colorClass: "bg-green-50 text-green-700 border-green-200",
+  },
+  "error-hunt": {
+    icon: "🎯",
+    label: "Chasse aux Erreurs",
+    colorClass: "bg-red-50 text-red-700 border-red-200",
   },
 };
 
