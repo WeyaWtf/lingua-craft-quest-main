@@ -14,7 +14,14 @@
       "Bash(git tag:*)",
       "Bash(npx supabase db dump:*)",
       "Bash(npx supabase:*)",
-      "Bash(where psql)"
+      "Bash(where psql)",
+      "Bash(npm run build:*)",
+      "Bash(for:*)",
+      "Bash(do echo \"=== $file ===\")",
+      "Bash(done)",
+      "Bash(do echo \"=== Modifying $file ===\")",
+      "Bash(head:*)",
+      "Bash(node:*)"
     ],
     "deny": [],
     "ask": []

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { RotateCcw, Eye } from "lucide-react";
+import { RotateCcw, Eye, CheckCircle } from "lucide-react";
 
 interface KatakanaChartPlayerProps {
   content: {
@@ -15,9 +15,10 @@ interface KatakanaChartPlayerProps {
     r_row?: Array<{ char: string; romaji: string }>;
     w_row?: Array<{ char: string; romaji: string }>;
   };
+  onComplete?: () => void;
 }
 
-const KatakanaChartPlayer = ({ content }: KatakanaChartPlayerProps) => {
+const KatakanaChartPlayer = ({ content, onComplete }: KatakanaChartPlayerProps) => {
   const [revealedChars, setRevealedChars] = useState<Set<string>>(new Set());
 
   const toggleReveal = (char: string) => {
@@ -166,6 +167,16 @@ const KatakanaChartPlayer = ({ content }: KatakanaChartPlayerProps) => {
                 <Eye className="w-4 h-4 mr-2" />
                 Afficher tout
               </Button>
+              {onComplete && (
+                <Button
+                  size="sm"
+                  className="bg-green-600 hover:bg-green-700 text-white"
+                  onClick={onComplete}
+                >
+                  <CheckCircle className="w-4 h-4 mr-2" />
+                  Valider
+                </Button>
+              )}
             </div>
           </div>
         </div>

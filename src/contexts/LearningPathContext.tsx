@@ -61,7 +61,8 @@ export const LearningPathProvider = ({ children }: { children: ReactNode }) => {
       const { data, error } = await supabase
         .from('learning_paths')
         .select('*')
-        .eq('is_published', true)
+        // Temporarily load all paths for debugging
+        // .eq('is_published', true)
         .order('created_at', { ascending: false });
 
       if (error) {
@@ -184,8 +185,8 @@ export const LearningPathProvider = ({ children }: { children: ReactNode }) => {
       if (pathData.language) updateData.language = pathData.language;
       if (pathData.difficulty) updateData.difficulty = pathData.difficulty;
       if (pathData.estimatedTime) updateData.estimated_time = pathData.estimatedTime;
-      if (pathData.exerciseIds) updateData.exercise_ids = pathData.exerciseIds;
-      if (pathData.structure) updateData.structure = pathData.structure;
+      if (pathData.exerciseIds !== undefined) updateData.exercise_ids = pathData.exerciseIds;
+      if (pathData.structure !== undefined) updateData.structure = pathData.structure;
       if (pathData.icon) updateData.icon = pathData.icon;
       if (pathData.color) updateData.color = pathData.color;
       if (pathData.isPublished !== undefined) updateData.is_published = pathData.isPublished;

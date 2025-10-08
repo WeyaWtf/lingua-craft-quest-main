@@ -15,12 +15,31 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { toast } from "sonner";
+import { AssignmentTimelineConfig } from "@/components/AssignmentTimelineConfig";
+
+type RepetitionPhase = {
+  id: string;
+  name: string;
+  durationDays: number; // Durée de cette phase en jours
+  frequency: 'daily' | 'every_2_days' | 'every_3_days' | 'every_4_days' | 'every_5_days' | 'every_6_days' | 'weekly' | 'biweekly' | 'monthly';
+  customDays?: number; // Pour fréquence personnalisée
+  requiredAccuracy: number; // 0-100
+  repetitionsPerOccurrence: number; // Combien de fois par occurrence
+  xpReward?: number; // XP spécifique pour cette phase
+  coinsReward?: number; // Coins spécifiques
+};
 
 type AssignmentConfig = {
   enabled: boolean;
-  frequency: 'daily' | 'every_2_days' | 'every_3_days' | 'weekly';
-  requiredAccuracy: number; // 0-100
-  repetitionsRequired: number;
+  mode: 'simple' | 'timeline'; // Mode simple (une fréquence) ou timeline (phases)
+  // Mode simple
+  frequency?: 'daily' | 'every_2_days' | 'every_3_days' | 'weekly';
+  requiredAccuracy?: number; // 0-100
+  repetitionsRequired?: number;
+  // Mode timeline
+  phases?: RepetitionPhase[];
+  startDate?: string; // Date de début du parcours
+  autoAdjust?: boolean; // Ajuster automatiquement selon performance
 };
 
 type PathItem =
@@ -486,8 +505,8 @@ const PathEditor = () => {
   const handleSave = () => {
     if (!id || !path) return;
 
-    if (!title || !description || pathItems.length === 0) {
-      toast.error("Veuillez remplir tous les champs et ajouter au moins un élément");
+    if (!title || !description) {
+      toast.error("Veuillez remplir le titre et la description");
       return;
     }
 
@@ -1050,11 +1069,12 @@ const PathEditor = () => {
               </CardHeader>
               <CardContent>
                 <Tabs defaultValue="chapter">
-                  <TabsList className="grid w-full grid-cols-4">
+                  <TabsList className="grid w-full grid-cols-5">
                     <TabsTrigger value="chapter">Chapitres</TabsTrigger>
                     <TabsTrigger value="subchapter">Sous-ch.</TabsTrigger>
                     <TabsTrigger value="exercise">Exercices</TabsTrigger>
                     <TabsTrigger value="topic">Topics</TabsTrigger>
+                    <TabsTrigger value="assignments">📋 Devoirs</TabsTrigger>
                   </TabsList>
 
                   <TabsContent value="chapter" className="space-y-3">
@@ -1199,6 +1219,128 @@ const PathEditor = () => {
                       💡 Glissez-déposez les topics vers les dossiers, ou cliquez sur 📁 / +
                     </p>
                   </TabsContent>
+
+                  <TabsContent value="assignments" className="space-y-4">
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                      <h3 className="font-semibold text-blue-900 mb-2">📋 Configuration des Devoirs</h3>
+                      <p className="text-sm text-blue-800 mb-3">
+                        Configurez les exercices et topics de votre parcours comme devoirs avec échéances, répétitions, récompenses et notifications.
+                      </p>
+                      <p className="text-xs text-blue-700">
+                        💡 Sélectionnez un exercice dans la structure du parcours et cliquez sur l'icône trophée 🏆 pour configurer ses paramètres de devoir.
+                      </p>
+                    </div>
+
+                    <div className="space-y-3">
+                      <h4 className="font-semibold text-sm">Exercices configurés comme devoirs :</h4>
+                      {(() => {
+                        const assignedItems: PathItem[] = [];
+                        const collectAssigned = (items: PathItem[]) => {
+                          items.forEach(item => {
+                            if ((item.type === 'exercise' || item.type === 'topic') && item.assignmentConfig?.enabled) {
+                              assignedItems.push(item);
+                            }
+                            if ((item.type === 'chapter' || item.type === 'subchapter') && item.items) {
+                              collectAssigned(item.items);
+                            }
+                          });
+                        };
+                        collectAssigned(pathItems);
+
+                        if (assignedItems.length === 0) {
+                          return (
+                            <div className="text-center py-8 text-muted-foreground">
+                              <Calendar className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                              <p className="text-sm">Aucun devoir configuré</p>
+                              <p className="text-xs mt-1">
+                                Cliquez sur l'icône 🏆 d'un exercice pour le configurer comme devoir
+                              </p>
+                            </div>
+                          );
+                        }
+
+                        return (
+                          <div className="space-y-2 max-h-[300px] overflow-y-auto">
+                            {assignedItems.map(item => {
+                              const itemDetails = item.type === 'exercise'
+                                ? exercises.find(e => e.id === item.id)
+                                : topics.find(t => t.id === item.id);
+
+                              if (!itemDetails) return null;
+
+                              const config = item.assignmentConfig!;
+
+                              return (
+                                <div
+                                  key={item.id}
+                                  className="bg-white border border-green-300 rounded-lg p-3 shadow-sm"
+                                >
+                                  <div className="flex items-start justify-between">
+                                    <div className="flex-1">
+                                      <div className="flex items-center gap-2 mb-1">
+                                        <span className="text-lg">
+                                          {item.type === 'exercise' ? '📝' : '📚'}
+                                        </span>
+                                        <h5 className="font-semibold text-sm">{itemDetails.title}</h5>
+                                        <Badge variant="outline" className="bg-green-50 text-green-700 border-green-300">
+                                          Actif
+                                        </Badge>
+                                      </div>
+                                      <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs text-muted-foreground mt-2">
+                                        <div className="flex items-center gap-1">
+                                          <span>🔄</span>
+                                          <span>
+                                            {config.frequency === 'daily' && 'Quotidien'}
+                                            {config.frequency === 'every_2_days' && 'Tous les 2 jours'}
+                                            {config.frequency === 'every_3_days' && 'Tous les 3 jours'}
+                                            {config.frequency === 'weekly' && 'Hebdomadaire'}
+                                          </span>
+                                        </div>
+                                        <div className="flex items-center gap-1">
+                                          <span>🎯</span>
+                                          <span>Précision: {config.requiredAccuracy}%</span>
+                                        </div>
+                                        <div className="flex items-center gap-1">
+                                          <span>🔁</span>
+                                          <span>Répétitions: {config.repetitionsRequired}x</span>
+                                        </div>
+                                        <div className="flex items-center gap-1">
+                                          <span>💎</span>
+                                          <span>+{item.xpReward || 10} XP</span>
+                                        </div>
+                                      </div>
+                                    </div>
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={() => {
+                                        setSelectedItemId(item.id);
+                                        setConfigDialogOpen(true);
+                                      }}
+                                      className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                                    >
+                                      ⚙️ Modifier
+                                    </Button>
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        );
+                      })()}
+                    </div>
+
+                    <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 text-xs text-amber-800">
+                      <p className="font-semibold mb-1">📌 Comment configurer un devoir :</p>
+                      <ol className="list-decimal list-inside space-y-1 ml-2">
+                        <li>Ajoutez des exercices/topics à votre parcours (onglets précédents)</li>
+                        <li>Dans la "Structure du parcours", trouvez l'exercice souhaité</li>
+                        <li>Cliquez sur l'icône trophée 🏆 à droite de l'exercice</li>
+                        <li>Configurez la fréquence, répétitions, XP et autres paramètres</li>
+                        <li>Sauvegardez le parcours pour appliquer les changements</li>
+                      </ol>
+                    </div>
+                  </TabsContent>
                 </Tabs>
               </CardContent>
             </Card>
@@ -1242,96 +1384,19 @@ const PathEditor = () => {
                       Paramétrer les devoirs automatiques pour les utilisateurs inscrits
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="checkbox"
-                        id="assignment-enabled"
-                        checked={selectedItem.assignmentConfig?.enabled || false}
-                        onChange={(e) => {
-                          const currentConfig = selectedItem.assignmentConfig || {
-                            enabled: false,
-                            frequency: 'daily' as const,
-                            requiredAccuracy: 80,
-                            repetitionsRequired: 3
-                          };
-                          updateItemConfig(selectedItem.id, {
-                            assignmentConfig: { ...currentConfig, enabled: e.target.checked }
-                          });
-                        }}
-                        className="w-4 h-4"
-                      />
-                      <Label htmlFor="assignment-enabled" className="cursor-pointer">
-                        Activer les devoirs automatiques
-                      </Label>
-                    </div>
-
-                    {selectedItem.assignmentConfig?.enabled && (
-                      <>
-                        <div>
-                          <Label htmlFor="frequency">Fréquence de révision</Label>
-                          <Select
-                            value={selectedItem.assignmentConfig?.frequency || 'daily'}
-                            onValueChange={(value) => {
-                              const currentConfig = selectedItem.assignmentConfig!;
-                              updateItemConfig(selectedItem.id, {
-                                assignmentConfig: { ...currentConfig, frequency: value as any }
-                              });
-                            }}
-                          >
-                            <SelectTrigger id="frequency">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="daily">Quotidien</SelectItem>
-                              <SelectItem value="every_2_days">Tous les 2 jours</SelectItem>
-                              <SelectItem value="every_3_days">Tous les 3 jours</SelectItem>
-                              <SelectItem value="weekly">Hebdomadaire</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-
-                        <div>
-                          <Label htmlFor="accuracy">Taux de réussite requis (%)</Label>
-                          <Input
-                            id="accuracy"
-                            type="number"
-                            min="0"
-                            max="100"
-                            value={selectedItem.assignmentConfig?.requiredAccuracy || 80}
-                            onChange={(e) => {
-                              const currentConfig = selectedItem.assignmentConfig!;
-                              updateItemConfig(selectedItem.id, {
-                                assignmentConfig: { ...currentConfig, requiredAccuracy: parseInt(e.target.value) || 80 }
-                              });
-                            }}
-                          />
-                          <p className="text-xs text-muted-foreground mt-1">
-                            L'utilisateur doit atteindre ce taux de réussite avant de passer à l'étape suivante
-                          </p>
-                        </div>
-
-                        <div>
-                          <Label htmlFor="repetitions">Nombre de répétitions requises</Label>
-                          <Input
-                            id="repetitions"
-                            type="number"
-                            min="1"
-                            max="10"
-                            value={selectedItem.assignmentConfig?.repetitionsRequired || 3}
-                            onChange={(e) => {
-                              const currentConfig = selectedItem.assignmentConfig!;
-                              updateItemConfig(selectedItem.id, {
-                                assignmentConfig: { ...currentConfig, repetitionsRequired: parseInt(e.target.value) || 3 }
-                              });
-                            }}
-                          />
-                          <p className="text-xs text-muted-foreground mt-1">
-                            Nombre de fois que l'exercice doit être complété avec succès
-                          </p>
-                        </div>
-                      </>
-                    )}
+                  <CardContent>
+                    <AssignmentTimelineConfig
+                      config={selectedItem.assignmentConfig || {
+                        enabled: false,
+                        mode: 'simple',
+                        frequency: 'daily',
+                        requiredAccuracy: 80,
+                        repetitionsRequired: 3
+                      }}
+                      onChange={(newConfig) => {
+                        updateItemConfig(selectedItem.id, { assignmentConfig: newConfig });
+                      }}
+                    />
                   </CardContent>
                 </Card>
               )}

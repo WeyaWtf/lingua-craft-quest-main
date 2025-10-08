@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { RotateCcw } from "lucide-react";
+import { RotateCcw, CheckCircle } from "lucide-react";
 
 interface KatakanaMixerPlayerProps {
   content: {
@@ -15,9 +15,10 @@ interface KatakanaMixerPlayerProps {
     r_row?: Array<{ char: string; romaji: string }>;
     w_row?: Array<{ char: string; romaji: string }>;
   };
+  onComplete?: () => void;
 }
 
-const KatakanaMixerPlayer = ({ content }: KatakanaMixerPlayerProps) => {
+const KatakanaMixerPlayer = ({ content, onComplete }: KatakanaMixerPlayerProps) => {
   // Collecter tous les caractères
   const allChars = [
     ...(content.vowels || []),
@@ -328,6 +329,16 @@ const KatakanaMixerPlayer = ({ content }: KatakanaMixerPlayerProps) => {
             <RotateCcw className="w-4 h-4 mr-2" />
             Réinitialiser
           </Button>
+
+          {onComplete && (
+            <Button
+              onClick={onComplete}
+              className="w-full mt-2 bg-green-600 hover:bg-green-700 text-white"
+            >
+              <CheckCircle className="w-4 h-4 mr-2" />
+              Valider
+            </Button>
+          )}
 
           {/* Tableau des erreurs */}
           {Object.keys(errorCount).length > 0 && (

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { RotateCcw, Eye } from "lucide-react";
+import { RotateCcw, Eye, CheckCircle } from "lucide-react";
 
 interface BurmeseDiacriticsPlayerProps {
   content: {
@@ -11,9 +11,10 @@ interface BurmeseDiacriticsPlayerProps {
     ai_row?: Array<{ char: string; romaji: string }>;
     au_row?: Array<{ char: string; romaji: string }>;
   };
+  onComplete?: () => void;
 }
 
-const BurmeseDiacriticsPlayer = ({ content }: BurmeseDiacriticsPlayerProps) => {
+const BurmeseDiacriticsPlayer = ({ content, onComplete }: BurmeseDiacriticsPlayerProps) => {
   const [revealedChars, setRevealedChars] = useState<Set<string>>(new Set());
 
   const toggleReveal = (char: string) => {
@@ -112,6 +113,16 @@ const BurmeseDiacriticsPlayer = ({ content }: BurmeseDiacriticsPlayerProps) => {
                 <Eye className="w-4 h-4 mr-2" />
                 Afficher tout
               </Button>
+              {onComplete && (
+                <Button
+                  size="sm"
+                  className="bg-green-600 hover:bg-green-700 text-white"
+                  onClick={onComplete}
+                >
+                  <CheckCircle className="w-4 h-4 mr-2" />
+                  Valider
+                </Button>
+              )}
             </div>
           </div>
         </div>

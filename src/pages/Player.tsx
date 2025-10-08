@@ -36,8 +36,8 @@ const Player = () => {
 
   const exercise = getExercise(id || "");
 
-  // Function to mark exercise as completed
-  const handleCompleteExercise = async () => {
+  // Function to mark exercise as completed with XP/Coins rewards
+  const handleCompleteExercise = async (score: number = 100) => {
     if (!id) return;
 
     try {
@@ -46,6 +46,12 @@ const Player = () => {
         toast.error('Vous devez être connecté pour enregistrer votre progression');
         return;
       }
+
+      // Calculate rewards based on score
+      const baseXP = 10;
+      const baseCoins = 5;
+      const xpEarned = Math.round(baseXP * (score / 100));
+      const coinsEarned = Math.round(baseCoins * (score / 100));
 
       // Check if progress entry already exists
       const { data: existing } = await supabase
@@ -56,6 +62,8 @@ const Player = () => {
         .eq('learning_path_id', pathId || '')
         .single();
 
+      const isFirstCompletion = !existing || existing.status !== 'completed';
+
       if (existing) {
         // Update existing progress
         const { error } = await supabase
@@ -65,7 +73,11 @@ const Player = () => {
             completed_at: new Date().toISOString(),
             last_practiced_at: new Date().toISOString(),
             success_count: (existing.success_count || 0) + 1,
-            attempts_count: (existing.attempts_count || 0) + 1
+            attempts_count: (existing.attempts_count || 0) + 1,
+            last_score: score,
+            best_score: Math.max(existing.best_score || 0, score),
+            xp_earned: (existing.xp_earned || 0) + xpEarned,
+            coins_earned: (existing.coins_earned || 0) + coinsEarned
           })
           .eq('id', existing.id);
 
@@ -81,11 +93,45 @@ const Player = () => {
             status: 'completed',
             completed_at: new Date().toISOString(),
             first_attempt_at: new Date().toISOString(),
+            last_practiced_at: new Date().toISOString(),
             attempts_count: 1,
-            success_count: 1
+            success_count: 1,
+            last_score: score,
+            best_score: score,
+            xp_earned: xpEarned,
+            coins_earned: coinsEarned
           });
 
         if (error) throw error;
+      }
+
+      // Update user's total XP and coins in user_progress table
+      const { data: userProgress } = await supabase
+        .from('user_progress')
+        .select('*')
+        .eq('user_id', user.id)
+        .single();
+
+      if (userProgress) {
+        await supabase
+          .from('user_progress')
+          .update({
+            total_xp: (userProgress.total_xp || 0) + xpEarned,
+            coins: (userProgress.coins || 0) + coinsEarned,
+            exercises_completed: (userProgress.exercises_completed || 0) + (isFirstCompletion ? 1 : 0)
+          })
+          .eq('user_id', user.id);
+      } else {
+        // Create user progress entry if doesn't exist
+        await supabase
+          .from('user_progress')
+          .insert({
+            user_id: user.id,
+            total_xp: xpEarned,
+            coins: coinsEarned,
+            exercises_completed: 1,
+            current_level: 1
+          });
       }
 
       // Update learning path progression if pathId exists
@@ -102,19 +148,30 @@ const Player = () => {
         const completionPercentage = (completedCount / totalCount) * 100;
 
         // Update the learning path progress
-        await supabase
+        const { data: pathProgress } = await supabase
           .from('user_learning_paths')
-          .update({
-            completion_percentage: completionPercentage,
-            status: completionPercentage === 100 ? 'completed' : 'in_progress',
-            last_activity: new Date().toISOString()
-          })
+          .select('*')
           .eq('user_id', user.id)
-          .eq('learning_path_id', pathId);
+          .eq('learning_path_id', pathId)
+          .single();
+
+        if (pathProgress) {
+          await supabase
+            .from('user_learning_paths')
+            .update({
+              completion_percentage: completionPercentage,
+              status: completionPercentage === 100 ? 'completed' : 'in_progress',
+              last_activity: new Date().toISOString(),
+              total_xp_earned: (pathProgress.total_xp_earned || 0) + xpEarned,
+              total_coins_earned: (pathProgress.total_coins_earned || 0) + coinsEarned
+            })
+            .eq('user_id', user.id)
+            .eq('learning_path_id', pathId);
+        }
       }
 
-      toast.success('✅ Exercice complété !', {
-        duration: 2000,
+      toast.success(`✅ Exercice complété ! +${xpEarned} XP, +${coinsEarned} 🪙`, {
+        duration: 3000,
       });
 
       // Navigate back after a short delay
@@ -124,7 +181,7 @@ const Player = () => {
         } else {
           navigate(-1);
         }
-      }, 1500);
+      }, 2000);
     } catch (err: any) {
       console.error('Error completing exercise:', err);
       toast.error('Erreur lors de l\'enregistrement de la progression');
@@ -343,43 +400,55 @@ const Player = () => {
           </div>
         </div>
 
-        <div className="flex justify-center items-center gap-4 mt-8">
-          <Button
-            size="lg"
-            variant="outline"
-            onClick={handlePrevCard}
-            disabled={currentCardIndex === 0}
-          >
-            <ChevronLeft className="w-5 h-5" />
-          </Button>
+        <div className="flex justify-center items-center gap-4 mt-8 flex-wrap">
+          <div className="flex gap-4">
+            <Button
+              size="lg"
+              variant="outline"
+              onClick={handlePrevCard}
+              disabled={currentCardIndex === 0}
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </Button>
 
-          <Button
-            size="lg"
-            variant="outline"
-            onClick={() => setIsFlipped(!isFlipped)}
-            className="min-w-[200px]"
-          >
-            <RotateCcw className="w-5 h-5 mr-2" />
-            {isFlipped ? "Voir le recto" : "Voir le verso"}
-          </Button>
+            <Button
+              size="lg"
+              variant="outline"
+              onClick={() => setIsFlipped(!isFlipped)}
+              className="min-w-[200px]"
+            >
+              <RotateCcw className="w-5 h-5 mr-2" />
+              {isFlipped ? "Voir le recto" : "Voir le verso"}
+            </Button>
 
-          <Button
-            size="lg"
-            variant="outline"
-            onClick={handleSaveCard}
-            className={savedCards.includes(currentCardIndex) ? "bg-blue-50 border-blue-500" : ""}
-            title="Sauvegarder cette carte pour révision"
-          >
-            📌
-          </Button>
+            <Button
+              size="lg"
+              variant="outline"
+              onClick={handleSaveCard}
+              className={savedCards.includes(currentCardIndex) ? "bg-blue-50 border-blue-500" : ""}
+              title="Sauvegarder cette carte pour révision"
+            >
+              📌
+            </Button>
 
+            <Button
+              size="lg"
+              variant="outline"
+              onClick={handleNextCard}
+              disabled={currentCardIndex === totalCards - 1}
+            >
+              <ChevronRight className="w-5 h-5" />
+            </Button>
+          </div>
+
+          {/* Bouton Valider toujours visible */}
           <Button
             size="lg"
-            variant="outline"
-            onClick={handleNextCard}
-            disabled={currentCardIndex === totalCards - 1}
+            className="bg-green-600 hover:bg-green-700 text-white"
+            onClick={() => handleCompleteExercise(100)}
           >
-            <ChevronRight className="w-5 h-5" />
+            <CheckCircle2 className="w-5 h-5 mr-2" />
+            Valider l'exercice
           </Button>
         </div>
 
@@ -434,15 +503,24 @@ const Player = () => {
               }
             </p>
             <div className="flex gap-3 justify-center">
-              {currentCardIndex < totalCards - 1 && (
+              {currentCardIndex < totalCards - 1 ? (
                 <Button onClick={() => {
                   handleNextCard();
                 }}>
                   Carte suivante
                 </Button>
+              ) : (
+                <Button
+                  className="bg-green-600 hover:bg-green-700 text-white"
+                  onClick={() => {
+                    handleNextCard(); // This will trigger showSummary on last card
+                  }}
+                >
+                  Voir le résumé
+                </Button>
               )}
-              <Button variant="outline" onClick={() => navigate("/exercises")}>
-                Terminer
+              <Button variant="outline" onClick={() => navigate(pathId ? `/learning-path/${pathId}` : "/exercises")}>
+                Retour
               </Button>
             </div>
           </div>
@@ -519,6 +597,13 @@ const Player = () => {
             )}
 
             <div className="flex gap-3 justify-center mt-6">
+              <Button
+                className="bg-green-600 hover:bg-green-700 text-white"
+                onClick={() => handleCompleteExercise(100)}
+              >
+                <CheckCircle2 className="w-4 h-4 mr-2" />
+                Valider et sauvegarder
+              </Button>
               <Button onClick={() => {
                 setCurrentCardIndex(0);
                 setIsFlipped(false);
@@ -528,8 +613,8 @@ const Player = () => {
               }}>
                 Recommencer
               </Button>
-              <Button variant="outline" onClick={() => navigate("/exercises")}>
-                Terminer
+              <Button variant="outline" onClick={() => navigate(pathId ? `/learning-path/${pathId}` : "/exercises")}>
+                Retour
               </Button>
             </div>
           </div>
@@ -1271,11 +1356,22 @@ const Player = () => {
             </div>
 
             <div className="flex gap-4 justify-center">
+              <Button
+                size="lg"
+                className="bg-green-600 hover:bg-green-700 text-white"
+                onClick={() => {
+                  const score = Math.round((userAnswers.filter(a => a.isCorrect).length / totalExercises) * 100);
+                  handleCompleteExercise(score);
+                }}
+              >
+                <CheckCircle2 className="w-4 h-4 mr-2" />
+                Valider et sauvegarder
+              </Button>
               <Button size="lg" onClick={handleReset}>
                 Recommencer
               </Button>
-              <Button size="lg" variant="outline" onClick={() => navigate("/catalog")}>
-                Retour au catalogue
+              <Button size="lg" variant="outline" onClick={() => navigate(pathId ? `/learning-path/${pathId}` : "/catalog")}>
+                Retour
               </Button>
             </div>
           </div>
@@ -1314,36 +1410,36 @@ const Player = () => {
 
     // LOCKED: Check if this is a locked Thai exercise
     if (exercise.title === "Thai Consonants - Les 44 consonnes thaïes (3 classes)") {
-      return <ThaiConsonantsPlayer content={content} />;
+      return <ThaiConsonantsPlayer content={content} onComplete={() => handleCompleteExercise(100)} />;
     }
 
     if (exercise.title === "Thai Vowels & Diacritics - Voyelles et signes diacritiques thaïs") {
-      return <ThaiVowelsPlayer content={content} />;
+      return <ThaiVowelsPlayer content={content} onComplete={() => handleCompleteExercise(100)} />;
     }
 
     // LOCKED: Check if this is a locked Burmese exercise
     if (exercise.title === "Burmese Alphabet Chart - Tableau de l'alphabet birman") {
-      return <BurmeseAlphabetPlayer content={content} onComplete={handleCompleteExercise} />;
+      return <BurmeseAlphabetPlayer content={content} onComplete={() => handleCompleteExercise(100)} />;
     }
 
     if (exercise.title === "Burmese Vowels & Marks - Voyelles et signes birmans") {
-      return <BurmeseVowelsPlayer content={content} />;
+      return <BurmeseVowelsPlayer content={content} onComplete={() => handleCompleteExercise(100)} />;
     }
 
     if (exercise.title === "Burmese Diacritics - Signes diacritiques birmans (tons et voyelles)") {
-      return <BurmeseDiacriticsPlayer content={content} />;
+      return <BurmeseDiacriticsPlayer content={content} onComplete={() => handleCompleteExercise(100)} />;
     }
 
     if (exercise.title === "Hiragana Chart - Tableau des Hiragana") {
-      return <HiraganaChartPlayer content={content} />;
+      return <HiraganaChartPlayer content={content} onComplete={() => handleCompleteExercise(100)} />;
     }
 
     if (exercise.title === "Katakana Chart - Tableau des Katakana") {
-      return <KatakanaChartPlayer content={content} />;
+      return <KatakanaChartPlayer content={content} onComplete={() => handleCompleteExercise(100)} />;
     }
 
     if (exercise.title === "Katakana Mixer - Jeu de placement des Katakana") {
-      return <KatakanaMixerPlayer content={content} />;
+      return <KatakanaMixerPlayer content={content} onComplete={() => handleCompleteExercise(100)} />;
     }
 
     const toggleReveal = (char: string) => {

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { RotateCcw, Eye } from "lucide-react";
+import { RotateCcw, Eye, CheckCircle } from "lucide-react";
 
 interface HangeulChartPlayerProps {
   content: {
@@ -9,9 +9,10 @@ interface HangeulChartPlayerProps {
     basic_vowels?: Array<{ char: string; romanization: string }>;
     complex_vowels?: Array<{ char: string; romanization: string }>;
   };
+  onComplete?: () => void;
 }
 
-const HangeulChartPlayer = ({ content }: HangeulChartPlayerProps) => {
+const HangeulChartPlayer = ({ content, onComplete }: HangeulChartPlayerProps) => {
   const [revealedChars, setRevealedChars] = useState<Set<string>>(new Set());
 
   const toggleReveal = (char: string) => {
@@ -150,6 +151,16 @@ const HangeulChartPlayer = ({ content }: HangeulChartPlayerProps) => {
                 <Eye className="w-4 h-4 mr-2" />
                 Afficher tout
               </Button>
+              {onComplete && (
+                <Button
+                  size="sm"
+                  className="bg-green-600 hover:bg-green-700 text-white"
+                  onClick={onComplete}
+                >
+                  <CheckCircle className="w-4 h-4 mr-2" />
+                  Valider
+                </Button>
+              )}
             </div>
           </div>
         </div>

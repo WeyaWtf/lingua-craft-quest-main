@@ -135,7 +135,7 @@ const Exercises = () => {
                   {...exercise}
                   description={exercise.description || ""}
                   onPlay={() => navigate(`/player/exercise/${exercise.id}`)}
-                  onEdit={() => navigate(`/creator/${exercise.id}`)}
+                  onEdit={() => navigate(`/creator/exercise/${exercise.id}`)}
                 />
               </div>
             ))}

@@ -29,6 +29,7 @@ interface ExerciseContextType {
   deleteExercise: (id: string) => void;
   getExercise: (id: string) => Exercise | undefined;
   publishExercise: (id: string) => void;
+  refreshExercises: () => Promise<void>;
 }
 
 const ExerciseContext = createContext<ExerciseContextType | undefined>(undefined);
@@ -85,6 +86,28 @@ export const ExerciseProvider = ({ children }: { children: ReactNode }) => {
   // Charger les exercices au montage du composant
   useEffect(() => {
     loadExercises();
+
+    // Écouter les changements en temps réel
+    const subscription = supabase
+      .channel('exercises-changes')
+      .on('postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'exercises'
+        },
+        (payload) => {
+          console.log('Exercise change detected:', payload);
+          // Recharger tous les exercices quand un changement est détecté
+          loadExercises();
+        }
+      )
+      .subscribe();
+
+    // Nettoyer l'abonnement au démontage
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
   const addExercise = async (exerciseData: Omit<Exercise, "id" | "createdAt" | "updatedAt" | "stats">) => {
@@ -221,6 +244,10 @@ export const ExerciseProvider = ({ children }: { children: ReactNode }) => {
     await updateExercise(id, { isPublished: true });
   };
 
+  const refreshExercises = async () => {
+    await loadExercises();
+  };
+
   return (
     <ExerciseContext.Provider
       value={{
@@ -230,6 +257,7 @@ export const ExerciseProvider = ({ children }: { children: ReactNode }) => {
         deleteExercise,
         getExercise,
         publishExercise,
+        refreshExercises,
       }}
     >
       {children}

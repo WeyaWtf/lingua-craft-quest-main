@@ -29,7 +29,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-const Creator = () => {
+const ExerciseCreator = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const { getExercise, addExercise, updateExercise, publishExercise, deleteExercise } = useExercises();
@@ -143,6 +143,10 @@ const Creator = () => {
     { value: "completion", icon: "✍️", label: "Complétion", description: "Complétez les phrases" },
     { value: "translation", icon: "📖", label: "Traduction", description: "Traduisez entre langues" },
     { value: "conversation", icon: "💬", label: "Conversation", description: "Dialogues pratiques" },
+    { value: "grammar-identification", icon: "🔍", label: "Identification Grammaticale", description: "Identifiez les éléments grammaticaux" },
+    { value: "sentence-mixer", icon: "🔀", label: "Mixeur de Phrases", description: "Reconstructisez des phrases mélangées" },
+    { value: "grammar-transformation", icon: "💬", label: "Transformation Grammaticale", description: "Transformez des phrases selon des règles" },
+    { value: "error-hunt", icon: "🎯", label: "Chasse aux Erreurs", description: "Détectez et corrigez les erreurs" },
   ];
 
   const validateForm = () => {
@@ -1271,6 +1275,64 @@ const Creator = () => {
           </div>
         )}
 
+        {/* Placeholder for new exercise types - To be implemented */}
+        {(selectedType === "grammar-identification" || 
+          selectedType === "sentence-mixer" || 
+          selectedType === "grammar-transformation" || 
+          selectedType === "error-hunt") && (
+          <div className="bg-card rounded-xl border border-border p-6 mb-6 shadow-sm animate-scale-in">
+            <div className="flex items-center gap-2 mb-6">
+              <span className="text-2xl">
+                {selectedType === "grammar-identification" && "🔍"}
+                {selectedType === "sentence-mixer" && "🔀"}
+                {selectedType === "grammar-transformation" && "💬"}
+                {selectedType === "error-hunt" && "🎯"}
+              </span>
+              <h2 className="text-xl font-bold text-foreground">
+                {selectedType === "grammar-identification" && "Identification Grammaticale"}
+                {selectedType === "sentence-mixer" && "Mixeur de Phrases"}
+                {selectedType === "grammar-transformation" && "Transformation Grammaticale"}
+                {selectedType === "error-hunt" && "Chasse aux Erreurs"}
+              </h2>
+            </div>
+
+            <div className="p-8 bg-gradient-to-br from-primary/5 to-primary/10 rounded-lg border-2 border-dashed border-primary/30 text-center">
+              <div className="text-6xl mb-4">🚧</div>
+              <h3 className="text-xl font-semibold mb-2">Formulaire en cours de développement</h3>
+              <p className="text-muted-foreground mb-4">
+                Ce nouveau type d'exercice est disponible, mais son formulaire de création est en cours d'implémentation.
+              </p>
+              <p className="text-sm text-muted-foreground">
+                Les players sont prêts et fonctionnels. Vous pourrez bientôt créer ces exercices directement depuis cette interface.
+              </p>
+            </div>
+
+            <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <h4 className="font-semibold mb-2">💡 À propos de ce type d'exercice :</h4>
+              {selectedType === "grammar-identification" && (
+                <p className="text-sm text-muted-foreground">
+                  L'identification grammaticale permet d'apprendre à reconnaître les différents éléments d'une phrase (particules, verbes, noms, etc.) et de traduire la phrase complète.
+                </p>
+              )}
+              {selectedType === "sentence-mixer" && (
+                <p className="text-sm text-muted-foreground">
+                  Le mixeur de phrases propose de reconstruire des phrases dont les mots ont été mélangés, avec option d'affichage des catégories grammaticales selon le niveau de difficulté.
+                </p>
+              )}
+              {selectedType === "grammar-transformation" && (
+                <p className="text-sm text-muted-foreground">
+                  La transformation grammaticale consiste à modifier une phrase selon des instructions (changement de temps, de modalité, de personne, etc.) puis à la traduire.
+                </p>
+              )}
+              {selectedType === "error-hunt" && (
+                <p className="text-sm text-muted-foreground">
+                  La chasse aux erreurs permet de détecter et corriger les erreurs dans des phrases (particules incorrectes, conjugaison, ordre des mots, etc.) avant de traduire la version correcte.
+                </p>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* Action Buttons */}
         <div className="flex flex-col sm:flex-row gap-3 justify-between animate-fade-in">
           {/* Left side - Delete button (only if editing existing exercise) */}
@@ -1439,4 +1501,4 @@ const Creator = () => {
   );
 };
 
-export default Creator;
+export default ExerciseCreator;

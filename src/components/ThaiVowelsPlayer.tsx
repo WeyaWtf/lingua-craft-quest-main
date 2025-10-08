@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { RotateCcw, Eye } from "lucide-react";
+import { RotateCcw, Eye, CheckCircle } from "lucide-react";
 
 interface ThaiVowelsPlayerProps {
   content: {
@@ -10,9 +10,10 @@ interface ThaiVowelsPlayerProps {
     special_marks_row?: Array<{ char: string; romaji: string }>;
     numbers_row?: Array<{ char: string; romaji: string }>;
   };
+  onComplete?: () => void;
 }
 
-const ThaiVowelsPlayer = ({ content }: ThaiVowelsPlayerProps) => {
+const ThaiVowelsPlayer = ({ content, onComplete }: ThaiVowelsPlayerProps) => {
   const [revealedChars, setRevealedChars] = useState<Set<string>>(new Set());
 
   const toggleReveal = (char: string) => {
@@ -110,6 +111,16 @@ const ThaiVowelsPlayer = ({ content }: ThaiVowelsPlayerProps) => {
                 <Eye className="w-4 h-4 mr-2" />
                 Afficher tout
               </Button>
+              {onComplete && (
+                <Button
+                  size="sm"
+                  className="bg-green-600 hover:bg-green-700 text-white"
+                  onClick={onComplete}
+                >
+                  <CheckCircle className="w-4 h-4 mr-2" />
+                  Valider
+                </Button>
+              )}
             </div>
           </div>
         </div>
