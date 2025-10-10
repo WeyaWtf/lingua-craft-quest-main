@@ -111,6 +111,13 @@ import InsertHiraganaChartReal from "./pages/InsertHiraganaChartReal";
 import InsertBurmeseChart from "./pages/InsertBurmeseChart";
 import InsertBurmeseDiacritics from "./pages/InsertBurmeseDiacritics";
 import InsertBurmeseVowels from "./pages/InsertBurmeseVowels";
+import InsertBurmeseSyllables from "./pages/InsertBurmeseSyllables";
+import InsertBurmeseSyllableFlashcards from "./pages/InsertBurmeseSyllableFlashcards";
+import InsertBurmeseWordMixer from "./pages/InsertBurmeseWordMixer";
+import InsertBurmeseWordAssociation from "./pages/InsertBurmeseWordAssociation";
+import InsertBurmeseVocabFlashcards from "./pages/InsertBurmeseVocabFlashcards";
+import InsertBurmeseSimpleSentences from "./pages/InsertBurmeseSimpleSentences";
+import FixAllLearningPaths from "./pages/FixAllLearningPaths";
 import InsertThaiConsonants from "./pages/InsertThaiConsonants";
 import InsertThaiVowels from "./pages/InsertThaiVowels";
 import InsertKatakanaMixer from "./pages/InsertKatakanaMixer";
@@ -127,6 +134,12 @@ import MigratePath from "./pages/MigratePath";
 import CreateJapList1000 from "./pages/CreateJapList1000";
 import CreateBurmeseList1000 from "./pages/CreateBurmeseList1000";
 import CreateThaiList1000 from "./pages/CreateThaiList1000";
+import PopulateJapList1000 from "./pages/PopulateJapList1000";
+import PopulateMyrList1000 from "./pages/PopulateMyrList1000";
+import PopulateThaList1000 from "./pages/PopulateThaList1000";
+import PopulateKorList1000 from "./pages/PopulateKorList1000";
+import CheckLearningPathIds from "./pages/CheckLearningPathIds";
+import SetupAllLearningPaths from "./pages/SetupAllLearningPaths";
 import InsertThaiFlashcards from "./pages/InsertThaiFlashcards";
 import InsertBurmeseFlashcards from "./pages/InsertBurmeseFlashcards";
 import InsertBurmeseLevel1Flashcard from "./pages/InsertBurmeseLevel1Flashcard";
@@ -424,6 +437,13 @@ const App = () => (
             <Route path="/insert-burmese-chart" element={<InsertBurmeseChart />} />
             <Route path="/insert-burmese-diacritics" element={<InsertBurmeseDiacritics />} />
             <Route path="/insert-burmese-vowels" element={<InsertBurmeseVowels />} />
+            <Route path="/insert/burmese-syllables" element={<InsertBurmeseSyllables />} />
+            <Route path="/insert/burmese-syllable-flashcards" element={<InsertBurmeseSyllableFlashcards />} />
+            <Route path="/insert/burmese-word-mixer" element={<InsertBurmeseWordMixer />} />
+            <Route path="/insert/burmese-word-association" element={<InsertBurmeseWordAssociation />} />
+            <Route path="/insert/burmese-vocab-flashcards" element={<InsertBurmeseVocabFlashcards />} />
+            <Route path="/insert/burmese-simple-sentences" element={<InsertBurmeseSimpleSentences />} />
+            <Route path="/fix-learning-paths" element={<FixAllLearningPaths />} />
             <Route path="/insert-thai-consonants" element={<InsertThaiConsonants />} />
             <Route path="/insert-thai-vowels" element={<InsertThaiVowels />} />
             <Route path="/insert-katakana-mixer" element={<InsertKatakanaMixer />} />
@@ -617,6 +637,12 @@ const App = () => (
             <Route path="/create-jap-list-1000" element={<CreateJapList1000 />} />
             <Route path="/create-burmese-list-1000" element={<CreateBurmeseList1000 />} />
             <Route path="/create-thai-list-1000" element={<CreateThaiList1000 />} />
+            <Route path="/populate-jap-list-1000" element={<PopulateJapList1000 />} />
+            <Route path="/populate-myr-list-1000" element={<PopulateMyrList1000 />} />
+            <Route path="/populate-tha-list-1000" element={<PopulateThaList1000 />} />
+            <Route path="/populate-kor-list-1000" element={<PopulateKorList1000 />} />
+            <Route path="/check-learning-path-ids" element={<CheckLearningPathIds />} />
+            <Route path="/setup-all-learning-paths" element={<SetupAllLearningPaths />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

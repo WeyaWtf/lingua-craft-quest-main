@@ -1,27 +1,7 @@
 {
   "permissions": {
     "allow": [
-      "Bash(tasklist)",
-      "Bash(findstr:*)",
-      "Bash(npm install:*)",
-      "Bash(npm run dev:*)",
-      "Bash(curl:*)",
-      "Bash(npx tsc:*)",
-      "Bash(git init:*)",
-      "Bash(git add:*)",
-      "Bash(git commit:*)",
-      "Bash(git config:*)",
-      "Bash(git tag:*)",
-      "Bash(npx supabase db dump:*)",
-      "Bash(npx supabase:*)",
-      "Bash(where psql)",
-      "Bash(npm run build:*)",
-      "Bash(for:*)",
-      "Bash(do echo \"=== $file ===\")",
-      "Bash(done)",
-      "Bash(do echo \"=== Modifying $file ===\")",
-      "Bash(head:*)",
-      "Bash(node:*)"
+      "Bash(cmd /c:*)"
     ],
     "deny": [],
     "ask": []

@@ -49,7 +49,7 @@ const Creator = () => {
   const editOptions = [
     {
       id: "edit-exercise",
-      title: "editer un exercice",
+      title: "Éditer un exercice",
       description: "Flashcards, associations, traductions, quiz, et plus encore",
       icon: Gamepad2,
       color: "from-blue-500 to-cyan-500",
@@ -60,7 +60,7 @@ const Creator = () => {
     },
     {
       id: "edit-path",
-      title: "editer un parcours",
+      title: "Éditer un parcours",
       description: "Organisez plusieurs exercices en un parcours d'apprentissage structuré",
       icon: BookOpen,
       color: "from-purple-500 to-pink-500",
@@ -71,7 +71,7 @@ const Creator = () => {
     },
     {
       id: "edit-topic",
-      title: "editer un topic",
+      title: "Éditer un topic",
       description: "Regroupez des parcours et exercices par thématique",
       icon: FolderTree,
       color: "from-green-500 to-emerald-500",

@@ -26,6 +26,7 @@ import BurmeseAlphabetMixerFullPlayer from "@/components/BurmeseAlphabetMixerFul
 import ThaiConsonantsMixerFullPlayer from "@/components/ThaiConsonantsMixerFullPlayer";
 import SentenceMixerPlayer from "@/components/SentenceMixerPlayer";
 import GrammarIdentificationPlayer from "@/components/GrammarIdentificationPlayer";
+import BurmeseSyllablePlayer from "@/components/BurmeseSyllablePlayer";
 
 const Player = () => {
   const { id } = useParams<{ id: string }>();
@@ -1660,6 +1661,18 @@ const Player = () => {
         return <SentenceMixerPlayer content={exercise.content} onComplete={handleCompleteExercise} />;
       case "grammar-identification":
         return <GrammarIdentificationPlayer content={exercise.content} onComplete={handleCompleteExercise} />;
+      case "completion":
+        // Check if it's the Burmese Syllable Encyclopedia
+        if (exercise.tags?.includes("encyclopedia") || exercise.tags?.includes("syllables")) {
+          return <BurmeseSyllablePlayer content={exercise.content} onComplete={handleCompleteExercise} />;
+        }
+        return (
+          <div className="text-center py-16">
+            <p className="text-lg text-muted-foreground">
+              Le lecteur pour ce type d'exercice est en cours de développement
+            </p>
+          </div>
+        );
       default:
         return (
           <div className="text-center py-16">

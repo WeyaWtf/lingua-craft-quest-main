@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tableur Complet des Syllabes Birmanes</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f4f7f9; min-height: 100vh; padding: 20px; }
+        .container { max-width: 1600px; margin: 0 auto; background: white; border-radius: 15px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); overflow: hidden; }
+        .header { background: linear-gradient(135deg, #4354b3, #6e7fe3); color: white; padding: 30px; text-align: center; }
+        .header h1 { font-size: 2.5rem; margin-bottom: 10px; }
+        .tabs { display: flex; background: #34495e; overflow-x: auto; scrollbar-width: thin; -webkit-overflow-scrolling: touch; border-bottom: 4px solid #2c3e50; }
+        .tab { padding: 15px 25px; background: #34495e; color: white; border: none; cursor: pointer; transition: all 0.3s ease; white-space: nowrap; font-size: 1rem; border-bottom: 4px solid transparent; }
+        .tab:hover { background: #4a627a; }
+        .tab.active { background: #6e7fe3; border-bottom-color: #f1c40f; }
+        .tab-content { display: none; padding: 30px; animation: fadeIn 0.5s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .tab-content.active { display: block; }
+        .vowel-table { width: 100%; border-collapse: collapse; margin-top: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
+        .vowel-table th, .vowel-table td { padding: 15px; text-align: center; border: 1px solid #ecf0f1; }
+        .vowel-table th { background: #3498db; color: white; font-weight: bold; }
+        .vowel-table tr:nth-child(even) { background-color: #f8f9fa; }
+        .vowel-table tr:hover { background: #e8f4fd; }
+        .burmese { font-size: 2rem; color: #2c3e50; }
+        .transliteration { font-family: 'Courier New', monospace; font-weight: bold; color: #e74c3c; font-size: 1.1rem; }
+        .pronunciation { color: #27ae60; font-style: italic; }
+        .syllable-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 25px; margin-top: 20px; }
+        .syllable-card { background: #ffffff; border-radius: 10px; padding: 20px; box-shadow: 0 8px 25px rgba(0,0,0,0.08); }
+        .syllable-title { text-align: center; font-size: 1.6rem; color: #2c3e50; margin-bottom: 15px; font-weight: 600; border-bottom: 2px solid #3498db; padding-bottom: 10px;}
+        .tone-group .burmese { font-size: 1.5rem; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🇲🇲 Encyclopédie des Syllabes Birmanes</h1>
+            <p>Un guide complet sur les consonnes, voyelles, tons et finales.</p>
+        </div>
+        
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('ka')">က Ka</button>
+            <button class="tab" onclick="showTab('kha')">ခ Kha</button>
+            <button class="tab" onclick="showTab('ga')">ဂ Ga</button>
+            <button class="tab" onclick="showTab('nga')">င Nga</button>
+            <button class="tab" onclick="showTab('sa')">စ Sa</button>
+            <button class="tab" onclick="showTab('hsa')">ဆ Hsa</button>
+            <button class="tab" onclick="showTab('za')">ဇ Za</button>
+            <button class="tab" onclick="showTab('nya')">ဉ Nya</button>
+            <button class="tab" onclick="showTab('ta')">တ Ta</button>
+            <button class="tab" onclick="showTab('tha')">ထ Tha</button>
+            <button class="tab" onclick="showTab('da')">ဒ Da</button>
+            <button class="tab" onclick="showTab('na')">န Na</button>
+            <button class="tab" onclick="showTab('pa')">ပ Pa</button>
+            <button class="tab" onclick="showTab('pha')">ဖ Pha</button>
+            <button class="tab" onclick="showTab('ba')">ဗ Ba</button>
+            <button class="tab" onclick="showTab('ma')">မ Ma</button>
+            <button class="tab" onclick="showTab('ya')">ယ Ya</button>
+            <button class="tab" onclick="showTab('ra')">ရ Ra</button>
+            <button class="tab" onclick="showTab('la')">လ La</button>
+            <button class="tab" onclick="showTab('wa')">ဝ Wa</button>
+            <button class="tab" onclick="showTab('tha_en')">သ Tha</button>
+            <button class="tab" onclick="showTab('ha')">ဟ Ha</button>
+        </div>
+        
+        <div id="ka" class="tab-content active">
+            <div class="syllable-grid">
+
+                <div class="syllable-card">
+                    <div class="syllable-title">Voyelles Ouvertes (par Ton)</div>
+                    <table class="vowel-table tone-group">
+                        <thead><tr><th>Son</th><th>Ton Grinçant</th><th>Ton Bas</th><th>Ton Haut</th></tr></thead>
+                        <tbody>
+                            <tr><td>/a/</td>
+                                <td><span class="burmese">က</span><br><span class="transliteration">ka.</span><br><span class="pronunciation">[kạ]</span></td>
+                                <td><span class="burmese">ကာ</span><br><span class="transliteration">ka</span><br><span class="pronunciation">[kà]</span></td>
+                                <td><span class="burmese">ကား</span><br><span class="transliteration">ka:</span><br><span class="pronunciation">[ká]</span></td>
+                            </tr>
+                            <tr><td>/i/</td>
+                                <td><span class="burmese">ကိ</span><br><span class="transliteration">ki.</span><br><span class="pronunciation">[kḭ]</span></td>
+                                <td><span class="burmese">ကီ</span><br><span class="transliteration">ki</span><br><span class="pronunciation">[kì]</span></td>
+                                <td><span class="burmese">ကီး</span><br><span class="transliteration">ki:</span><br><span class="pronunciation">[kí]</span></td>
+                            </tr>
+                             <tr><td>/u/</td>
+                                <td><span class="burmese">ကု</span><br><span class="transliteration">ku.</span><br><span class="pronunciation">[kṵ]</span></td>
+                                <td><span class="burmese">ကူ</span><br><span class="transliteration">ku</span><br><span class="pronunciation">[kù]</span></td>
+                                <td><span class="burmese">ကူး</span><br><span class="transliteration">ku:</span><br><span class="pronunciation">[kú]</span></td>
+                            </tr>
+                            <tr><td>/e/</td>
+                                <td><span class="burmese">ကေ့</span><br><span class="transliteration">ke.</span><br><span class="pronunciation">[kẹ]</span></td>
+                                <td><span class="burmese">ကေ</span><br><span class="transliteration">ke</span><br><span class="pronunciation">[kè]</span></td>
+                                <td><span class="burmese">ကေး</span><br><span class="transliteration">ke:</span><br><span class="pronunciation">[ké]</span></td>
+                            </tr>
+                            <tr><td>/o/</td>
+                                <td><span class="burmese">ကို့</span><br><span class="transliteration">kui.</span><br><span class="pronunciation">[kọ]</span></td>
+                                <td><span class="burmese">ကို</span><br><span class="transliteration">kui</span><br><span class="pronunciation">[kò]</span></td>
+                                <td><span class="burmese">ကိုး</span><br><span class="transliteration">kui:</span><br><span class="pronunciation">[kó]</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="syllable-card">
+                    <div class="syllable-title">Voyelles à Finale Stoppée</div>
+                    <table class="vowel-table">
+                         <thead><tr><th>Rime</th><th>Graphème</th><th>Translittération</th><th>Prononciation</th></tr></thead>
+                         <tbody>
+                            <tr><td>/-ɛʔ/</td><td class="burmese">ကက်</td><td class="transliteration">kak</td><td class="pronunciation">[kɛʔ]</td></tr>
+                            <tr><td>/-aʔ/</td><td class="burmese">ကတ်</td><td class="transliteration">kat</td><td class="pronunciation">[kaʔ]</td></tr>
+                            <tr><td>/-eɪʔ/</td><td class="burmese">ကိုက်</td><td class="transliteration">kuik</td><td class="pronunciation">[keɪʔ]</td></tr>
+                            <tr><td>/-aʊʔ/</td><td class="burmese">ကောက်</td><td class="transliteration">kauk</td><td class="pronunciation">[kaʊʔ]</td></tr>
+                         </tbody>
+                    </table>
+                </div>
+
+                <div class="syllable-card">
+                    <div class="syllable-title">Voyelles à Finale Nasale</div>
+                     <table class="vowel-table tone-group">
+                        <thead><tr><th>Son</th><th>Ton Grinçant</th><th>Ton Bas</th><th>Ton Haut</th></tr></thead>
+                        <tbody>
+                            <tr><td>/-aŋ/</td>
+                                <td><span class="burmese">ကင့်</span><br><span class="transliteration">kang.</span><br><span class="pronunciation">[kḭŋ]</span></td>
+                                <td><span class="burmese">ကင်</span><br><span class="transliteration">kang</span><br><span class="pronunciation">[kìŋ]</span></td>
+                                <td><span class="burmese">ကင်း</span><br><span class="transliteration">kang:</span><br><span class="pronunciation">[kíŋ]</span></td>
+                            </tr>
+                            <tr><td>/-an/</td>
+                                <td><span class="burmese">ကန့်</span><br><span class="transliteration">kan.</span><br><span class="pronunciation">[kạɴ]</span></td>
+                                <td><span class="burmese">ကန်</span><br><span class="transliteration">kan</span><br><span class="pronunciation">[kàɴ]</span></td>
+                                <td><span class="burmese">ကန်း</span><br><span class="transliteration">kan:</span><br><span class="pronunciation">[káɴ]</span></td>
+                            </tr>
+                             <tr><td>/-aʊŋ/</td>
+                                <td><span class="burmese">ကောင့်</span><br><span class="transliteration">kaung.</span><br><span class="pronunciation">[kạʊɴ]</span></td>
+                                <td><span class="burmese">ကောင်</span><br><span class="transliteration">kaung</span><br><span class="pronunciation">[kàʊɴ]</span></td>
+                                <td><span class="burmese">ကောင်း</span><br><span class="transliteration">kaung:</span><br><span class="pronunciation">[káʊɴ]</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                 <div class="syllable-card">
+                    <div class="syllable-title">Combinaisons avec Médiales</div>
+                    <table class="vowel-table">
+                        <thead><tr><th>Médiale</th><th>Graphème</th><th>Translittération</th><th>Prononciation</th></tr></thead>
+                        <tbody>
+                            <tr><td>-y-</td><td class="burmese">ကျ</td><td class="transliteration">kya</td><td class="pronunciation">[tɕa̰]</td></tr>
+                            <tr><td>-r-</td><td class="burmese">ကြ</td><td class="transliteration">kra</td><td class="pronunciation">[tɕa̰]</td></tr>
+                            <tr><td>-w-</td><td class="burmese">ကွ</td><td class="transliteration">kwa</td><td class="pronunciation">[kwa̰]</td></tr>
+                            <tr><td>-yw-</td><td class="burmese">ကျွ</td><td class="transliteration">kywa</td><td class="pronunciation">[tɕwa̰]</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        </div>
+
+        <div id="kha" class="tab-content">
+            <div class="syllable-card">
+                <div class="syllable-title">Voyelles Ouvertes (Extraits)</div>
+                <table class="vowel-table tone-group">
+                    <thead><tr><th>Son</th><th>Ton Grinçant</th><th>Ton Bas</th><th>Ton Haut</th></tr></thead>
+                    <tbody>
+                        <tr><td>/a/</td>
+                            <td><span class="burmese">ခ</span><br><span class="transliteration">kha.</span><br><span class="pronunciation">[kʰạ]</span></td>
+                            <td><span class="burmese">ခါ</span><br><span class="transliteration">kha</span><br><span class="pronunciation">[kʰà]</span></td>
+                            <td><span class="burmese">ခါး</span><br><span class="transliteration">kha:</span><br><span class="pronunciation">[kʰá]</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <p style="text-align:center; margin-top: 20px;"><i>(Cette section serait complétée avec toutes les variations pour <b>ခ</b>, sur le modèle de <b>က</b>.)</i></p>
+        </div>
+
+        </div>
+
+    <script>
+        function showTab(tabName) {
+            // Cacher tous les contenus
+            const contents = document.querySelectorAll('.tab-content');
+            contents.forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Désactiver tous les onglets
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Afficher le contenu et activer l'onglet sélectionné
+            document.getElementById(tabName).classList.add('active');
+            document.querySelector(`.tab[onclick="showTab('${tabName}')"]`).classList.add('active');
+        }
+    </script>
+</body>
+</html>
