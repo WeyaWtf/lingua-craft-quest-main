@@ -17,7 +17,12 @@
     "fast": "Rapide",
     "fastDesc": "Création en quelques clics",
     "shared": "Partagé",
-    "sharedDesc": "Accessible à tous"
+    "sharedDesc": "Accessible à tous",
+    "ctaTitle": "Prêt à commencer votre voyage linguistique ?",
+    "ctaSubtitle": "Rejoignez des milliers d'apprenants passionnés",
+    "startNow": "Commencer maintenant",
+    "learnYourWay": "à votre manière",
+    "learnLanguages": "Apprenez les langues"
   },
   "creator": {
     "title": "Créer du Contenu",

@@ -2,36 +2,39 @@ import { Link } from "react-router-dom";
 import { ArrowRight, Sparkles, BookOpen, Users, Zap } from "lucide-react";
 import Navigation from "@/components/Navigation";
 import { Button } from "@/components/ui/button";
+import { useTranslation } from "react-i18next";
 
 const Index = () => {
+  const { t } = useTranslation(['pages', 'components']);
+
   const features = [
     {
       icon: <BookOpen className="w-6 h-6" />,
-      title: "Catalogue Riche",
-      description: "Des centaines d'exercices dans plusieurs langues",
+      title: t('pages:landing.richCatalog'),
+      description: t('pages:landing.richCatalogDesc'),
       color: "bg-exercise-translation-light text-exercise-translation",
     },
     {
       icon: <Zap className="w-6 h-6" />,
-      title: "Création Intuitive",
-      description: "Créez vos propres exercices en quelques clics",
+      title: t('pages:landing.intuitiveCreation'),
+      description: t('pages:landing.intuitiveCreationDesc'),
       color: "bg-exercise-quiz-light text-exercise-quiz",
     },
     {
       icon: <Users className="w-6 h-6" />,
-      title: "Communauté Active",
-      description: "Partagez et apprenez avec d'autres passionnés",
+      title: t('pages:landing.activeCommunity'),
+      description: t('pages:landing.activeCommunityDesc'),
       color: "bg-exercise-flashcard-light text-exercise-flashcard",
     },
   ];
 
   const exerciseTypes = [
-    { icon: "📇", label: "Cartes Flash", color: "bg-exercise-flashcard" },
-    { icon: "🔗", label: "Association", color: "bg-exercise-association" },
-    { icon: "🎯", label: "Quiz", color: "bg-exercise-quiz" },
-    { icon: "✍️", label: "Complétion", color: "bg-exercise-completion" },
-    { icon: "📖", label: "Traduction", color: "bg-exercise-translation" },
-    { icon: "💬", label: "Conversation", color: "bg-exercise-conversation" },
+    { icon: "📇", label: t('components:exerciseTypes.flashcard'), color: "bg-exercise-flashcard" },
+    { icon: "🔗", label: t('components:exerciseTypes.association'), color: "bg-exercise-association" },
+    { icon: "🎯", label: t('components:exerciseTypes.quiz'), color: "bg-exercise-quiz" },
+    { icon: "✍️", label: t('components:exerciseTypes.completion'), color: "bg-exercise-completion" },
+    { icon: "📖", label: t('components:exerciseTypes.translation'), color: "bg-exercise-translation" },
+    { icon: "💬", label: t('components:exerciseTypes.conversation'), color: "bg-exercise-conversation" },
   ];
 
   return (
@@ -43,32 +46,31 @@ const Index = () => {
         <div className="max-w-4xl mx-auto text-center animate-slide-up">
           <div className="inline-flex items-center gap-2 bg-accent text-accent-foreground px-4 py-2 rounded-full text-sm font-medium mb-6">
             <Sparkles className="w-4 h-4" />
-            Plateforme d'apprentissage collaborative
+            {t('pages:landing.tagline')}
           </div>
-          
+
           <h1 className="text-5xl md:text-6xl font-bold text-foreground mb-6 leading-tight">
-            Apprenez les langues
+            {t('pages:landing.learnLanguages')}
             <br />
             <span className="bg-gradient-hero bg-clip-text text-transparent">
-              à votre manière
+              {t('pages:landing.learnYourWay')}
             </span>
           </h1>
-          
+
           <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-            Créez, partagez et pratiquez des exercices de langues adaptés à votre niveau.
-            Rejoignez une communauté passionnée d'apprenants.
+            {t('pages:landing.description')}
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link to="/catalog">
               <Button size="lg" className="bg-primary hover:bg-primary-hover text-primary-foreground shadow-lg group">
-                Parcourir le catalogue
+                {t('pages:landing.browseCatalog')}
                 <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </Button>
             </Link>
             <Link to="/creator">
               <Button size="lg" variant="outline" className="border-2">
-                Créer un exercice
+                {t('pages:landing.createExercise')}
               </Button>
             </Link>
           </div>
@@ -79,7 +81,7 @@ const Index = () => {
       <section className="container mx-auto px-4 pb-16">
         <div className="max-w-5xl mx-auto">
           <h2 className="text-3xl font-bold text-center text-foreground mb-8">
-            Types d'exercices disponibles
+            {t('pages:landing.exerciseTypes')}
           </h2>
           
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
@@ -128,14 +130,14 @@ const Index = () => {
       <section className="container mx-auto px-4 pb-20">
         <div className="max-w-4xl mx-auto bg-gradient-hero rounded-2xl p-12 text-center shadow-xl">
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-            Prêt à commencer votre voyage linguistique ?
+            {t('pages:landing.ctaTitle')}
           </h2>
           <p className="text-white/90 text-lg mb-8">
-            Rejoignez des milliers d'apprenants passionnés
+            {t('pages:landing.ctaSubtitle')}
           </p>
           <Link to="/catalog">
             <Button size="lg" className="bg-white text-primary hover:bg-white/90 shadow-lg">
-              Commencer maintenant
+              {t('pages:landing.startNow')}
               <ArrowRight className="ml-2 w-5 h-5" />
             </Button>
           </Link>
