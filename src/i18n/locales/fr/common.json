@@ -1,0 +1,56 @@
+{
+  "language": {
+    "french": "Français",
+    "english": "English",
+    "changeLanguage": "Changer de langue"
+  },
+  "buttons": {
+    "start": "Commencer",
+    "explore": "Explorer",
+    "create": "Créer",
+    "edit": "Éditer",
+    "delete": "Supprimer",
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "next": "Suivant",
+    "previous": "Précédent",
+    "finish": "Terminer",
+    "check": "Vérifier",
+    "retry": "Rejouer",
+    "continue": "Continuer",
+    "add": "Ajouter",
+    "remove": "Retirer"
+  },
+  "messages": {
+    "success": "Succès",
+    "error": "Erreur",
+    "loading": "Chargement...",
+    "noData": "Aucune donnée disponible",
+    "confirmDelete": "Êtes-vous sûr de vouloir supprimer ?",
+    "exerciseCreated": "Exercice créé avec succès",
+    "pathCreated": "Parcours créé avec succès",
+    "changesSaved": "Modifications enregistrées",
+    "errorSaving": "Erreur lors de l'enregistrement",
+    "errorCreating": "Erreur lors de la création",
+    "deleteSuccess": "Suppression réussie",
+    "signInSuccess": "Connexion réussie",
+    "signOutSuccess": "Déconnexion réussie"
+  },
+  "auth": {
+    "signIn": "Se connecter",
+    "signUp": "S'inscrire",
+    "signOut": "Se déconnecter",
+    "email": "Email",
+    "password": "Mot de passe",
+    "confirmPassword": "Confirmer le mot de passe",
+    "username": "Nom d'utilisateur",
+    "forgotPassword": "Mot de passe oublié ?",
+    "alreadyHaveAccount": "Vous avez déjà un compte ?",
+    "noAccount": "Vous n'avez pas de compte ?"
+  },
+  "difficulty": {
+    "beginner": "Débutant",
+    "intermediate": "Intermédiaire",
+    "advanced": "Avancé"
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "language": {
+    "french": "Français",
+    "english": "English",
+    "changeLanguage": "Change language"
+  },
+  "buttons": {
+    "start": "Start",
+    "explore": "Explore",
+    "create": "Create",
+    "edit": "Edit",
+    "delete": "Delete",
+    "save": "Save",
+    "cancel": "Cancel",
+    "next": "Next",
+    "previous": "Previous",
+    "finish": "Finish",
+    "check": "Check",
+    "retry": "Retry",
+    "continue": "Continue",
+    "add": "Add",
+    "remove": "Remove"
+  },
+  "messages": {
+    "success": "Success",
+    "error": "Error",
+    "loading": "Loading...",
+    "noData": "No data available",
+    "confirmDelete": "Are you sure you want to delete?",
+    "exerciseCreated": "Exercise created successfully",
+    "pathCreated": "Learning path created successfully",
+    "changesSaved": "Changes saved",
+    "errorSaving": "Error saving",
+    "errorCreating": "Error creating",
+    "deleteSuccess": "Successfully deleted",
+    "signInSuccess": "Successfully signed in",
+    "signOutSuccess": "Successfully signed out"
+  },
+  "auth": {
+    "signIn": "Sign In",
+    "signUp": "Sign Up",
+    "signOut": "Sign Out",
+    "email": "Email",
+    "password": "Password",
+    "confirmPassword": "Confirm password",
+    "username": "Username",
+    "forgotPassword": "Forgot password?",
+    "alreadyHaveAccount": "Already have an account?",
+    "noAccount": "Don't have an account?"
+  },
+  "difficulty": {
+    "beginner": "Beginner",
+    "intermediate": "Intermediate",
+    "advanced": "Advanced"
+  }
+}

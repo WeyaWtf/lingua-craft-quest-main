@@ -3,15 +3,17 @@ import Navigation from "@/components/Navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { BookOpen, Gamepad2, FolderTree, ChevronRight, Sparkles } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 const Creator = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation('pages');
 
   const creatorOptions = [
     {
       id: "exercise",
-      title: "Créer un Exercice",
-      description: "Flashcards, associations, traductions, quiz, et plus encore",
+      title: t('creator.createExercise'),
+      description: t('creator.exerciseDescription'),
       icon: Gamepad2,
       color: "from-blue-500 to-cyan-500",
       bgColor: "bg-blue-50",
@@ -22,8 +24,8 @@ const Creator = () => {
     },
     {
       id: "path",
-      title: "Créer un Parcours",
-      description: "Organisez plusieurs exercices en un parcours d'apprentissage structuré",
+      title: t('creator.createPath'),
+      description: t('creator.pathDescription'),
       icon: BookOpen,
       color: "from-purple-500 to-pink-500",
       bgColor: "bg-purple-50",
@@ -34,8 +36,8 @@ const Creator = () => {
     },
     {
       id: "topic",
-      title: "Créer un Topic",
-      description: "Regroupez des parcours et exercices par thématique",
+      title: t('creator.createTopic'),
+      description: t('creator.topicDescription'),
       icon: FolderTree,
       color: "from-green-500 to-emerald-500",
       bgColor: "bg-green-50",
@@ -49,8 +51,8 @@ const Creator = () => {
   const editOptions = [
     {
       id: "edit-exercise",
-      title: "Éditer un exercice",
-      description: "Flashcards, associations, traductions, quiz, et plus encore",
+      title: t('creator.editExercise'),
+      description: t('creator.exerciseDescription'),
       icon: Gamepad2,
       color: "from-blue-500 to-cyan-500",
       bgColor: "bg-blue-50",
@@ -60,8 +62,8 @@ const Creator = () => {
     },
     {
       id: "edit-path",
-      title: "Éditer un parcours",
-      description: "Organisez plusieurs exercices en un parcours d'apprentissage structuré",
+      title: t('creator.editPath'),
+      description: t('creator.pathDescription'),
       icon: BookOpen,
       color: "from-purple-500 to-pink-500",
       bgColor: "bg-purple-50",
@@ -71,8 +73,8 @@ const Creator = () => {
     },
     {
       id: "edit-topic",
-      title: "Éditer un topic",
-      description: "Regroupez des parcours et exercices par thématique",
+      title: t('creator.editTopic'),
+      description: t('creator.topicDescription'),
       icon: FolderTree,
       color: "from-green-500 to-emerald-500",
       bgColor: "bg-green-50",
@@ -91,10 +93,10 @@ const Creator = () => {
         <div className="text-center mb-12 animate-fade-in">
           <div className="flex items-center justify-center gap-3 mb-4">
             <Sparkles className="w-12 h-12 text-primary" />
-            <h1 className="text-4xl font-bold text-foreground">Créer du Contenu</h1>
+            <h1 className="text-4xl font-bold text-foreground">{t('creator.title')}</h1>
           </div>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Choisissez le type de contenu que vous souhaitez créer pour enrichir la plateforme
+            {t('creator.subtitle')}
           </p>
         </div>
 
@@ -126,7 +128,7 @@ const Creator = () => {
                     className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-colors"
                     onClick={() => navigate(option.createPath)}
                   >
-                    Commencer
+                    {t('creator.start')}
                     <ChevronRight className="w-4 h-4 ml-2" />
                   </Button>
                 </CardContent>
@@ -163,7 +165,7 @@ const Creator = () => {
                     className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-colors"
                     onClick={() => navigate(option.path)}
                   >
-                    Explorer
+                    {t('creator.explore')}
                     <ChevronRight className="w-4 h-4 ml-2" />
                   </Button>
                 </CardContent>
@@ -175,46 +177,46 @@ const Creator = () => {
         {/* Info Section */}
         <div className="max-w-5xl mx-auto mt-12 bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-xl p-8">
           <h2 className="text-2xl font-bold text-blue-900 mb-4 text-center">
-            💡 Quelle est la différence ?
+            💡 {t('creator.difference')}
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="bg-white rounded-lg p-5 border border-blue-100">
               <div className="flex items-center gap-2 mb-3">
                 <Gamepad2 className="w-6 h-6 text-blue-600" />
-                <h3 className="font-bold text-blue-900">Exercice</h3>
+                <h3 className="font-bold text-blue-900">{t('creator.createExercise')}</h3>
               </div>
               <p className="text-sm text-blue-700">
-                Une unité d'apprentissage unique : flashcards, quiz, traduction, association, etc.
+                {t('creator.exerciseExplanation')}
               </p>
               <div className="mt-3 text-xs text-blue-600 font-semibold">
-                Exemple : "Hiragana A-ligne"
+                {t('creator.example')} "{t('creator.exerciseExample')}"
               </div>
             </div>
 
             <div className="bg-white rounded-lg p-5 border border-purple-100">
               <div className="flex items-center gap-2 mb-3">
                 <BookOpen className="w-6 h-6 text-purple-600" />
-                <h3 className="font-bold text-purple-900">Parcours</h3>
+                <h3 className="font-bold text-purple-900">{t('creator.createPath')}</h3>
               </div>
               <p className="text-sm text-purple-700">
-                Une séquence d'exercices ordonnés pour atteindre un objectif d'apprentissage spécifique.
+                {t('creator.pathExplanation')}
               </p>
               <div className="mt-3 text-xs text-purple-600 font-semibold">
-                Exemple : "Maîtriser Hiragana"
+                {t('creator.example')} "{t('creator.pathExample')}"
               </div>
             </div>
 
             <div className="bg-white rounded-lg p-5 border border-green-100">
               <div className="flex items-center gap-2 mb-3">
                 <FolderTree className="w-6 h-6 text-green-600" />
-                <h3 className="font-bold text-green-900">Topic</h3>
+                <h3 className="font-bold text-green-900">{t('creator.createTopic')}</h3>
               </div>
               <p className="text-sm text-green-700">
-                Une collection thématique de parcours et exercices regroupés par sujet ou langue.
+                {t('creator.topicExplanation')}
               </p>
               <div className="mt-3 text-xs text-green-600 font-semibold">
-                Exemple : "Japonais Débutant"
+                {t('creator.example')} "{t('creator.topicExample')}"
               </div>
             </div>
           </div>
@@ -224,18 +226,18 @@ const Creator = () => {
         <div className="max-w-5xl mx-auto mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="bg-white rounded-lg p-4 border border-border text-center">
             <div className="text-3xl font-bold text-blue-600">📝</div>
-            <div className="text-2xl font-bold text-foreground mt-2">Simple</div>
-            <p className="text-sm text-muted-foreground">Interface intuitive</p>
+            <div className="text-2xl font-bold text-foreground mt-2">{t('landing.simple')}</div>
+            <p className="text-sm text-muted-foreground">{t('landing.simpleDesc')}</p>
           </div>
           <div className="bg-white rounded-lg p-4 border border-border text-center">
             <div className="text-3xl font-bold text-purple-600">⚡</div>
-            <div className="text-2xl font-bold text-foreground mt-2">Rapide</div>
-            <p className="text-sm text-muted-foreground">Création en quelques clics</p>
+            <div className="text-2xl font-bold text-foreground mt-2">{t('landing.fast')}</div>
+            <p className="text-sm text-muted-foreground">{t('landing.fastDesc')}</p>
           </div>
           <div className="bg-white rounded-lg p-4 border border-border text-center">
             <div className="text-3xl font-bold text-green-600">🌍</div>
-            <div className="text-2xl font-bold text-foreground mt-2">Partagé</div>
-            <p className="text-sm text-muted-foreground">Accessible à tous</p>
+            <div className="text-2xl font-bold text-foreground mt-2">{t('landing.shared')}</div>
+            <p className="text-sm text-muted-foreground">{t('landing.sharedDesc')}</p>
           </div>
         </div>
       </div>

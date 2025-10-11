@@ -1,0 +1,36 @@
+{
+  "exerciseTypes": {
+    "flashcard": "Flashcards",
+    "association": "Association",
+    "quiz": "Quiz",
+    "completion": "Completion",
+    "translation": "Translation",
+    "conversation": "Conversation"
+  },
+  "players": {
+    "showAnswer": "Show answer",
+    "hideAnswer": "Hide answer",
+    "correct": "Correct",
+    "incorrect": "Incorrect",
+    "score": "Score",
+    "result": "Result",
+    "wellDone": "Well done!",
+    "tryAgain": "Try again",
+    "yourAnswer": "Your answer",
+    "correctAnswer": "Correct answer"
+  },
+  "forms": {
+    "title": "Title",
+    "description": "Description",
+    "language": "Language",
+    "difficulty": "Difficulty",
+    "tags": "Tags",
+    "content": "Content",
+    "question": "Question",
+    "answer": "Answer",
+    "hint": "Hint",
+    "addItem": "Add item",
+    "removeItem": "Remove item",
+    "exerciseType": "Exercise type"
+  }
+}

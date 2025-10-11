@@ -3,10 +3,13 @@ import { Home, BookOpen, Gamepad2, PenTool, Users, Route, LogOut, User, Graduati
 import { LevelBadge } from "./gamification/LevelBadge";
 import { CoinDisplay } from "./gamification/CoinDisplay";
 import { StreakIndicator } from "./gamification/StreakIndicator";
+import { LanguageSwitcher } from "./LanguageSwitcher";
+import { OtterLogo } from "./OtterLogo";
 import { Button } from "./ui/button";
 import { supabase } from "@/lib/supabase";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,6 +22,7 @@ import {
 const Navigation = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { t } = useTranslation('navigation');
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
@@ -40,12 +44,12 @@ const Navigation = () => {
   }, []);
 
   const navItems = [
-    { path: "/", label: "Accueil", icon: Home },
-    { path: "/catalog", label: "Catalogue", icon: BookOpen },
-    { path: "/learning-paths", label: "Parcours", icon: Route },
-    { path: "/exercises", label: "Exercices", icon: Gamepad2 },
-    { path: "/creator", label: "Créer", icon: PenTool },
-    { path: "/community", label: "Communauté", icon: Users },
+    { path: "/", label: t('home'), icon: Home },
+    { path: "/catalog", label: t('catalog'), icon: BookOpen },
+    { path: "/learning-paths", label: t('learningPaths'), icon: Route },
+    { path: "/exercises", label: t('exercises'), icon: Gamepad2 },
+    { path: "/creator", label: t('create'), icon: PenTool },
+    { path: "/community", label: t('community'), icon: Users },
   ];
 
   return (
@@ -53,8 +57,8 @@ const Navigation = () => {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           <Link to="/" className="flex items-center gap-2 group">
-            <div className="w-10 h-10 rounded-xl bg-gradient-hero flex items-center justify-center transition-transform group-hover:scale-105">
-              <span className="text-2xl">🌍</span>
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center transition-transform group-hover:scale-105">
+              <OtterLogo size={40} />
             </div>
             <span className="text-xl font-bold bg-gradient-hero bg-clip-text text-transparent">
               Koilingua
@@ -84,6 +88,9 @@ const Navigation = () => {
           </div>
 
           <div className="flex items-center gap-3">
+            {/* Language Switcher */}
+            <LanguageSwitcher />
+
             {/* Gamification indicators - only show when logged in */}
             {user && (
               <div className="hidden lg:flex items-center gap-3">
@@ -109,7 +116,7 @@ const Navigation = () => {
                 <DropdownMenuContent align="end" className="w-64">
                   <DropdownMenuLabel className="font-normal">
                     <div className="flex flex-col space-y-1">
-                      <p className="text-sm font-medium leading-none">Mon compte</p>
+                      <p className="text-sm font-medium leading-none">{t('myAccount')}</p>
                       <p className="text-xs leading-none text-muted-foreground">
                         {user.email}
                       </p>
@@ -119,68 +126,68 @@ const Navigation = () => {
 
                   <DropdownMenuItem onClick={() => navigate('/my-learning')}>
                     <GraduationCap className="w-4 h-4 mr-2" />
-                    Mon apprentissage
+                    {t('myLearning')}
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => navigate('/assignments')}>
                     <ClipboardList className="w-4 h-4 mr-2" />
-                    Mes devoirs
+                    {t('assignments')}
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => navigate('/learning-groups')}>
                     <Users className="w-4 h-4 mr-2" />
-                    Groupe d'apprentissage
+                    {t('learningGroups')}
                   </DropdownMenuItem>
 
                   <DropdownMenuSeparator />
 
                   <DropdownMenuItem onClick={() => navigate('/notifications')}>
                     <Bell className="w-4 h-4 mr-2" />
-                    Notifications
+                    {t('notifications')}
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => navigate('/messages')}>
                     <MessageSquare className="w-4 h-4 mr-2" />
-                    Messages
+                    {t('messages')}
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => navigate('/forum')}>
                     <MessageCircle className="w-4 h-4 mr-2" />
-                    Forum
+                    {t('forum')}
                   </DropdownMenuItem>
 
                   <DropdownMenuSeparator />
 
                   <DropdownMenuItem onClick={() => navigate('/account-settings')}>
                     <Settings className="w-4 h-4 mr-2" />
-                    Paramètres du compte
+                    {t('accountSettings')}
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => navigate('/payment-methods')}>
                     <CreditCard className="w-4 h-4 mr-2" />
-                    Modes de paiement
+                    {t('paymentMethods')}
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => navigate('/subscriptions')}>
                     <Calendar className="w-4 h-4 mr-2" />
-                    Abonnements
+                    {t('subscriptions')}
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => navigate('/credits')}>
                     <Coins className="w-4 h-4 mr-2" />
-                    Crédits
+                    {t('credits')}
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => navigate('/purchase-history')}>
                     <ShoppingBag className="w-4 h-4 mr-2" />
-                    Historique des achats
+                    {t('purchaseHistory')}
                   </DropdownMenuItem>
 
                   <DropdownMenuSeparator />
 
                   <DropdownMenuItem onClick={() => navigate('/profile')}>
                     <User className="w-4 h-4 mr-2" />
-                    Profil public
+                    {t('publicProfile')}
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => navigate('/edit-profile')}>
                     <Edit3 className="w-4 h-4 mr-2" />
-                    Modifier le profil
+                    {t('editProfile')}
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => navigate('/help')}>
                     <HelpCircle className="w-4 h-4 mr-2" />
-                    Aide et support
+                    {t('helpSupport')}
                   </DropdownMenuItem>
 
                   <DropdownMenuSeparator />
@@ -188,13 +195,13 @@ const Navigation = () => {
                   <DropdownMenuItem
                     onClick={async () => {
                       await supabase.auth.signOut();
-                      toast.success('Déconnexion réussie');
+                      toast.success(t('signOutSuccess'));
                       navigate('/');
                     }}
                     className="text-red-600 focus:text-red-600"
                   >
                     <LogOut className="w-4 h-4 mr-2" />
-                    Se déconnecter
+                    {t('signOut')}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -205,13 +212,13 @@ const Navigation = () => {
                   onClick={() => navigate('/signin')}
                   className="text-sm font-medium"
                 >
-                  Se connecter
+                  {t('signIn')}
                 </Button>
                 <Button
                   onClick={() => navigate('/signup')}
                   className="text-sm font-medium"
                 >
-                  S'inscrire
+                  {t('signUp')}
                 </Button>
               </div>
             )}

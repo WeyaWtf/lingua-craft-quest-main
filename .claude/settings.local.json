@@ -1,7 +1,9 @@
 {
   "permissions": {
     "allow": [
-      "Bash(cmd /c:*)"
+      "Bash(cmd /c:*)",
+      "Bash(git push:*)",
+      "Bash(git log:*)"
     ],
     "deny": [],
     "ask": []
